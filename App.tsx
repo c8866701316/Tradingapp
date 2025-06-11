@@ -1,131 +1,538 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useEffect, useRef, useState } from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import Homescreen from './src/screens/Homescreen';
+import { AppState, DeviceEventEmitter, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Sessionscreen from './src/screens/Sessionscreen';
+import Tradesscreen from './src/screens/Tradesscreen';
+import Accountsscreen from './src/screens/Accountsscreen';
+import RejectionLogs from './src/screens/RejectionLogs';
+import { clearAuthToken, debugAsyncStorage, getUserDetails, Me, setAuthToken } from './src/Apicall/Axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import AppInitializer from './src/Websocket/AppInitializer';
+import LoginScreen from './src/screens/Loginscreen';
+import Portfolioscreen from './src/screens/Portfolioscreen';
+import Selectmarketscreen from './src/screens/Selectmarketscreen';
+import { UserProvider } from './src/screens/UserContext';
+import { SoundProvider } from './src/contexts/SoundContext';
+import MarketScriptScreen from './src/screens/MarketScriptScreen';
+import { useNavigation } from '@react-navigation/native';
+import CustomDrawerContent from './src/screens/CustomDrawerContent';
+import TradeDeletelog from './src/screens/Drawerscreens/TradeDeletelog';
+import Qtysettingscreen from './src/screens/Drawerscreens/Qtysettingscreen';
+import Blocksettingscreen from './src/screens/Drawerscreens/Blocksettingscreen';
+import RulesRegulation from './src/screens/Drawerscreens/RulesRegulation';
+import FilterDrawerContent from './src/screens/FilterDrawerContent';
+import SummaryReport from './src/screens/Drawerscreens/SummaryReport';
+import PdfReportscreen from './src/screens/Drawerscreens/PdfReportscreen';
+import ChangePassword from './src/screens/Drawerscreens/ChangePassword';
+import Alertsettingsscreen from './src/screens/Drawerscreens/Alertsettingsscreen';
+import ScriptListScreen from './src/screens/ScriptListScreen';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+// import FilterDrawerContent from './src/screens/FilterDrawerContent';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+const RightDrawer = createDrawerNavigator();
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+function TradeWithFilterDrawer() {
+  const [filters, setFilters] = useState({});
+
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
+    <RightDrawer.Navigator
+      screenOptions={{
+        drawerPosition: 'right',
+        headerShown: false,
+        drawerStyle: {
+          width: 220,
+
+        },
+      }}
+      drawerContent={(props) => <FilterDrawerContent {...props} onApplyFilters={setFilters} initialFilters={filters} />}
+    >
+      <RightDrawer.Screen name="TradesMain" >
+        {(props) => <Tradesscreen {...props} filters={filters} />}
+      </RightDrawer.Screen>
+    </RightDrawer.Navigator>
+  );
+}
+function RejectionWithFilterDrawer() {
+  const [filters, setFilters] = useState({});
+  return (
+    <RightDrawer.Navigator
+      screenOptions={{
+        drawerPosition: 'right',
+        headerShown: false,
+        drawerStyle: {
+          width: 220,
+
+        },
+      }}
+      drawerContent={(props) => <FilterDrawerContent {...props} onApplyFilters={setFilters}
+        initialFilters={filters} />}
+    >
+      <RightDrawer.Screen name="RejectionMain">
+        {(props) => <RejectionLogs {...props} filters={filters} />}
+      </RightDrawer.Screen>
+    </RightDrawer.Navigator>
+  );
+}
+function TradeEditWithFilterDrawer() {
+  const [filters, setFilters] = useState({});
+
+  return (
+    <RightDrawer.Navigator
+      screenOptions={{
+        drawerPosition: 'right',
+        headerShown: false,
+        drawerStyle: {
+          width: 220,
+
+        },
+      }}
+      drawerContent={(props) => <FilterDrawerContent {...props} onApplyFilters={setFilters}
+        initialFilters={filters} />}
+    >
+      <RightDrawer.Screen name="TradeEditMain">
+        {(props) => <TradeDeletelog {...props} filters={filters} />}
+      </RightDrawer.Screen>
+    </RightDrawer.Navigator>
   );
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+// Drawer Navigator
+function DrawerNavigator() {
+  return (
+    <Drawer.Navigator
+      initialRouteName="More"
+      screenOptions={{
+        drawerStyle: {
+          backgroundColor: '#03415A',
+          width: 250,
+        },
+        drawerLabelStyle: {
+          color: 'white',
+        },
+        drawerActiveTintColor: '#129688',
+        drawerInactiveTintColor: 'white',
+      }}
+    >
+    </Drawer.Navigator>
+  );
+}
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+// Tab Navigator
+function TabNavigator({ route }) {
+  const { meData } = route.params || {};
+  const navigation = useNavigation();
+
+  return (
+
+    <Tab.Navigator
+      screenOptions={{
+        tabBarShowLabel: false,
+        tabBarStyle: styles.tabBar,
+        tabBarActiveTintColor: 'yellow',
+        tabBarInactiveTintColor: 'white',
+      }}
+    >
+      <Tab.Screen
+        name="Home"
+        initialParams={{ meData }}
+        component={Homescreen}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <View
+              style={{
+                backgroundColor: focused ? '#012330' : 'transparent',
+                top: 5,
+                padding: 5,
+                borderRadius: 8,
+                height: 48,
+                width: 55,
+                alignItems: 'center',
+              }}
+            >
+              <MaterialIcons name="area-chart" color={focused ? '#129688' : 'white'} size={26} />
+              <Text style={{ bottom: 2, fontSize: 9, color: focused ? '#129688' : 'white', fontWeight: '800' }}>Watchlist</Text>
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Session"
+        component={Sessionscreen}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <View
+              style={{
+                backgroundColor: focused ? '#012330' : 'transparent',
+                top: 5,
+                padding: 5,
+                borderRadius: 8,
+                height: 48,
+                width: 55,
+                alignItems: 'center',
+              }}
+            >
+              <MaterialIcons name="trending-up" color={focused ? '#129688' : 'white'} size={26} />
+              <Text style={{ bottom: 2, fontSize: 9, color: focused ? '#129688' : 'white', fontWeight: '800' }}>Session</Text>
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Trades"
+        component={TradeWithFilterDrawer}
+        initialParams={{ meData }}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <View
+              style={{
+                backgroundColor: focused ? '#012330' : 'transparent',
+                top: 5,
+                padding: 5,
+                borderRadius: 8,
+                height: 48,
+                width: 55,
+                alignItems: 'center',
+              }}
+            >
+              <Ionicons name="list-circle" size={26} color={focused ? '#129688' : 'white'} />
+              <Text style={{ bottom: 2, fontSize: 9, color: focused ? '#129688' : 'white', fontWeight: '800' }}>Trades</Text>
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Portfolio"
+        component={Portfolioscreen}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <View style={styles.centerButton}>
+              <View
+                style={{
+                  backgroundColor: focused ? '#012330' : '#129688',
+                  height: 50,
+                  width: 50,
+                  borderRadius: 28,
+                  margin: 5,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <MaterialIcons name="pie-chart" size={28} color={focused ? '#129688' : 'white'} />
+              </View>
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Accounts"
+        component={Accountsscreen}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <View
+              style={{
+                backgroundColor: focused ? '#012330' : 'transparent',
+                top: 5,
+                padding: 5,
+                borderRadius: 8,
+                height: 48,
+                width: 55,
+                alignItems: 'center',
+              }}
+            >
+              <MaterialIcons name="account-box" color={focused ? '#129688' : 'white'} size={26} />
+              <Text style={{ bottom: 2, fontSize: 9, color: focused ? '#129688' : 'white', fontWeight: '800' }}>Accounts</Text>
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Rejection"
+        component={RejectionWithFilterDrawer}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <View
+              style={{
+                backgroundColor: focused ? '#012330' : 'transparent',
+                top: 5,
+                padding: 5,
+                borderRadius: 8,
+                height: 48,
+                width: 55,
+                alignItems: 'center',
+              }}
+            >
+              <Ionicons name="clipboard" color={focused ? '#129688' : 'white'} size={26} />
+              <Text style={{ bottom: -1, fontSize: 8, color: focused ? '#129688' : 'white', fontWeight: '800' }}>Rejection</Text>
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="More"
+        component={DrawerNavigator}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.openDrawer();
+          },
+        }}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <View
+              style={{
+                backgroundColor: focused ? '#012330' : 'transparent',
+                top: 5,
+                padding: 5,
+                borderRadius: 8,
+                height: 48,
+                width: 55,
+                alignItems: 'center',
+              }}
+            >
+              <Ionicons name="menu" color={focused ? '#129688' : 'white'} size={26} />
+              <Text style={{ bottom: 2, fontSize: 9, color: focused ? '#129688' : 'white', fontWeight: '800' }}>More</Text>
+            </View>
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+// Main App Navigator (combines Stack and Drawer)
+function MainNavigator({ meData }) {
+  const [role, setRole] = useState('');
+  const user = async () => {
+    const userDetails = await getUserDetails();
+    setRole(userDetails.userDetails.role)
+  }
+  useEffect(() => {
+    user();
+  }, [])
+  return (
+    <Drawer.Navigator
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
+      screenOptions={{
+        headerShown: false,
+        drawerStyle: {
+          width: 260
+        },
+        drawerPosition: 'left',
+        drawerLabelStyle: {
+          color: '#03415A',
+          textAlign: 'center',
+          fontSize: 13
+        },
+        drawerActiveTintColor: '#129688',
+        drawerInactiveTintColor: '#03415A',
+      }}
+    >
+      <Drawer.Screen
+        name="Tabs"
+        component={TabNavigator}
+        initialParams={{ meData }}
+        options={{
+          drawerItemStyle: { display: 'none' }, // This hides it from drawer
+        }}
+      />
+      {role === 'Master' &&
+        <Drawer.Screen
+          name="Summary Report"
+          component={SummaryReport} // Replace with your actual component
+          options={{
+            drawerIcon: ({ color }) => (
+              <View style={{ backgroundColor: '#BECDD3', padding: 8, borderRadius: 20, marginVertical: 10 }}>
+                <Ionicons name="add" size={16} color={color} />
+              </View>
+            ),
+          }}
+        />}
+      {/* Change Password is now handled by a modal in CustomDrawerContent */}
+      <Drawer.Screen
+        name="Trade Edit / Delete Logs"
+        component={TradeEditWithFilterDrawer}
+        options={{
+          drawerIcon: ({ color }) => (
+            <View style={{ backgroundColor: '#BECDD3', padding: 8, borderRadius: 20, marginVertical: 10 }}>
+              <AntDesign name="creditcard" size={16} color={color} />
+            </View>
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Qty Setting"
+        component={Qtysettingscreen}
+        options={{
+          drawerIcon: ({ color }) => (
+            <View style={{ backgroundColor: '#BECDD3', padding: 8, borderRadius: 20, marginVertical: 10 }}>
+              <Ionicons name="settings-outline" size={16} color={color} />
+            </View>
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Blocked Script Setting"
+        component={Blocksettingscreen}
+        options={{
+          drawerIcon: ({ color }) => (
+            <View style={{ backgroundColor: '#BECDD3', padding: 8, borderRadius: 20, marginVertical: 10 }}>
+              <Ionicons name="checkmark-done-circle-outline" size={16} color={color} />
+            </View>
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Rules And Regulation"
+        component={RulesRegulation}
+        options={{
+          drawerIcon: ({ color }) => (
+            <View style={{ backgroundColor: '#BECDD3', padding: 8, borderRadius: 20, marginVertical: 10 }}>
+              <Ionicons name="shield-checkmark-outline" size={16} color={color} />
+            </View>
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Alert Setting"
+        component={Alertsettingsscreen}
+        options={{
+          drawerIcon: ({ color }) => (
+            <View style={{ backgroundColor: '#BECDD3', padding: 8, borderRadius: 20, marginVertical: 10 }}>
+              <Ionicons name="alert-circle-outline" size={16} color={color} />
+            </View>
+          ),
+        }}
+      />
+    </Drawer.Navigator>
+  );
+}
+
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [meData, setMeData] = useState(null);
+  const appState = useRef(AppState.currentState);
+
+  // Function to clear user credentials and log out
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem("UserDetails");
+      clearAuthToken();
+      console.log("User logged out automatically - app went to background");
+      setIsLoggedIn(false);
+      setMeData(null);
+    } catch (error) {
+      console.error("Error during automatic logout:", error);
+    }
   };
 
-  /*
-   * To keep the template simple and small we're adding padding to prevent view
-   * from rendering under the System UI.
-   * For bigger apps the recommendation is to use `react-native-safe-area-context`:
-   * https://github.com/AppAndFlow/react-native-safe-area-context
-   *
-   * You can read more about it here:
-   * https://github.com/react-native-community/discussions-and-proposals/discussions/827
-   */
-  const safePadding = '5%';
+  // AppState listener to detect when app goes to background
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (appState.current === 'active' && (nextAppState === 'background' || nextAppState === 'inactive')) {
+        // App is going to background or being closed
+        console.log('App going to background - logging out');
+        handleLogout();
+      }
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        await debugAsyncStorage();
+        const userDetails = await getUserDetails();
+        console.log("user", userDetails);
+
+        if (userDetails && userDetails.accessToken) {
+          await setAuthToken(userDetails.accessToken);
+          setIsLoggedIn(true);
+          const userMeData = await Me();
+          console.log("Me data ", userMeData);
+          setMeData(userMeData);
+        } else {
+          setIsLoggedIn(false);
+        }
+      } catch (error) {
+        console.error("Error checking login status:", error);
+        setIsLoggedIn(false);
+      }
+    };
+    checkLoginStatus();
+    const loginListener = DeviceEventEmitter.addListener('onLoginSuccess', checkLoginStatus);
+
+    return () => {
+      loginListener.remove();
+    };
+  }, []);
+
+  if (isLoggedIn === null) {
+    return null; // Optionally show Splashscreen
+  }
 
   return (
-    <View style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        style={backgroundStyle}>
-        <View style={{paddingRight: safePadding}}>
-          <Header/>
-        </View>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            paddingHorizontal: safePadding,
-            paddingBottom: safePadding,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </View>
+    <SafeAreaView style={{ flex: 1 }}>
+
+      <SoundProvider>
+        <UserProvider userData={meData}>
+          <NavigationContainer>
+            <Stack.Navigator
+              screenOptions={{ headerShown: false }}
+              initialRouteName={isLoggedIn ? 'Home' : 'Login'}
+            >
+              <Stack.Screen name="Home">
+                {(props) => <MainNavigator {...props} meData={meData} />}
+              </Stack.Screen>
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen name="AppInitializer" component={AppInitializer} />
+              <Stack.Screen name="Selectmarket" component={Selectmarketscreen} />
+              <Stack.Screen name="Marketscript" component={MarketScriptScreen} />
+              <Stack.Screen name="PdfReport" component={PdfReportscreen} />
+              <Stack.Screen name="DataListScreen" component={ScriptListScreen} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </UserProvider>
+      </SoundProvider>
+    </SafeAreaView>
   );
 }
 
+export default App;
+
+// Styles
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  tabBar: {
+    backgroundColor: '#03415A',
+    height: 50,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+  centerButton: {
+    position: 'absolute',
+    bottom: 10,
+    backgroundColor: '#F1F2F4',
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
-
-export default App;
