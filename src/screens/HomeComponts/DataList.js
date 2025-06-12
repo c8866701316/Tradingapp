@@ -230,7 +230,8 @@ const styles = StyleSheet.create({
   },
   highTextData: {
     textAlign: 'right',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontSize: 17,
   },
   qtytext: {
     fontSize: 13,

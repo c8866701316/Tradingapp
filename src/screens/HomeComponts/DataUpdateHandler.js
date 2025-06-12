@@ -32,7 +32,6 @@ const DataUpdateHandler = ({ selectedTabs, setData, selectedItem, setSelectedIte
             },
           ];
         }
-
         const prevItem = prevData[existingIndex];
         const newBidPrice = parseFloat(newData?.bp) || 0;
         const prevBidPrice = parseFloat(prevItem?.bp) || 0;
