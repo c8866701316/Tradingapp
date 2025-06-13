@@ -41,7 +41,7 @@ const HomeScreen = ({ navigation }) => {
     const maxRetries = 3;
     let retryCount = 0;
 
-    while (retryCount < maxRetries) {
+    while (retryCount < maxRetries) { 
       try {
         if (!ConnectSignalR || ConnectSignalR.state !== "Connected") {
           console.log(`Attempting SignalR connection (Attempt ${retryCount + 1}/${maxRetries})...`);
@@ -225,93 +225,93 @@ const HomeScreen = ({ navigation }) => {
 
 export default HomeScreen;
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    indexMargin: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        padding: 10,
-        borderRadius: 8,
-    },
-    box: {
-        width: 160,
-        padding: 5,
-        borderWidth: 1,
-        borderRadius: 8,
-    },
-    niftyBox: {
-        borderColor: "#577F8D",
-        marginRight: 8,
-    },
-    sensexBox: {
-        borderColor: "#577F8D",
-    },
-    boldText: {
-        color: 'white',
-        fontWeight: "bold",
-        fontSize: 11,
-    },
-    largeText: {
-        color: 'white',
-        fontSize: 15,
-        fontWeight: "bold",
-    },
-    greenText: {
-        color: "green",
-        fontSize: 13,
-        letterSpacing: 0.5,
-    },
-    tagline: {
-        overflow: 'hidden',
-        borderRadius: 8,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    scrolling2: {
-        backgroundColor: "#03415A",
-        width: '100%',
-        padding: 5,
-    },
-    welcome: {
-        color: "white",
-        fontSize: 12,
-        fontWeight: "bold",
-        textAlign: "center",
-        letterSpacing: 0.5,
-    },
-    menuScroll: {
-        marginVertical: 5,
-        padding: 5,
-    },
-    menuButton: {
-        height: 30,
-        paddingHorizontal: 29,
-        marginHorizontal: 3,
-        justifyContent: 'center',
-    },
-    activeMenuButton: {
-        backgroundColor: '#BECDD3',
-        borderRadius: 9,
-    },
-    text: {
-        color: '#BCBCBD',
-        fontSize: 10,
-        fontWeight: 'bold',
-    },
-    activeText: {
-        color: '#03415B',
-        fontSize: 12,
-        fontWeight: 'bold',
-    },
-    searchContainer: {
-        flexDirection: "row",
-        justifyContent: 'flex-end',
-        paddingHorizontal: 35,
-        borderRadius: 8,
-    },
-    iconButton: {
-        marginVertical: 2,
-        marginHorizontal: 10
-    },
-  });
+  container: {
+    flex: 1,
+  },
+  indexMargin: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 10,
+    borderRadius: 8,
+  },
+  box: {
+    width: 160,
+    padding: 5,
+    borderWidth: 1,
+    borderRadius: 8,
+  },
+  niftyBox: {
+    borderColor: "#577F8D",
+    marginRight: 8,
+  },
+  sensexBox: {
+    borderColor: "#577F8D",
+  },
+  boldText: {
+    color: 'white',
+    fontWeight: "bold",
+    fontSize: 11,
+  },
+  largeText: {
+    color: 'white',
+    fontSize: 15,
+    fontWeight: "bold",
+  },
+  greenText: {
+    color: "green",
+    fontSize: 13,
+    letterSpacing: 0.5,
+  },
+  tagline: {
+    overflow: 'hidden',
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  scrolling2: {
+    backgroundColor: "#03415A",
+    width: '100%',
+    padding: 5,
+  },
+  welcome: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "bold",
+    textAlign: "center",
+    letterSpacing: 0.5,
+  },
+  menuScroll: {
+    marginVertical: 5,
+    padding: 5,
+  },
+  menuButton: {
+    height: 30,
+    paddingHorizontal: 29,
+    marginHorizontal: 3,
+    justifyContent: 'center',
+  },
+  activeMenuButton: {
+    backgroundColor: '#BECDD3',
+    borderRadius: 9,
+  },
+  text: {
+    color: '#BCBCBD',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  activeText: {
+    color: '#03415B',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  searchContainer: {
+    flexDirection: "row",
+    justifyContent: 'flex-end',
+    paddingHorizontal: 35,
+    borderRadius: 8,
+  },
+  iconButton: {
+    marginVertical: 2,
+    marginHorizontal: 10
+  },
+});
