@@ -14,8 +14,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getUserDetails } from "../Apicall/Axios"; // Adjust the import path
-import axios from "axios";
+import { api, getUserDetails } from "../Apicall/Axios"; // Adjust the import path
 import ConnectSignalR from "../Websocket/ConnectSignalR"; // Adjust the import path
 import { UserContext } from "./UserContext";
 import debounce from "lodash.debounce";
@@ -319,7 +318,7 @@ const ScriptListScreen = ({ route, navigation }) => {
 
     const fetchDropdownData = useCallback(async () => {
         try {
-            const response = await axios.get(`${BASE_URL}/Master/FillDropdown`, {
+            const response = await api.get('/Master/FillDropdown', {
                 params: { key: "3A4FBF37-CDAA-436C-B8D6-CCD9F6E099EE", option1: "normal" },
             });
             if (response.data && response.data.data) {

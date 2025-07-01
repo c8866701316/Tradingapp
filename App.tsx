@@ -12,7 +12,7 @@ import Sessionscreen from './src/screens/Sessionscreen';
 import Tradesscreen from './src/screens/Tradesscreen';
 import Accountsscreen from './src/screens/Accountsscreen';
 import RejectionLogs from './src/screens/RejectionLogs';
-import { clearAuthToken, debugAsyncStorage, getUserDetails, Me, setAuthToken } from './src/Apicall/Axios';
+import { clearAuthToken, clearStored, getStored, getUserDetails, Me, refreshAccessToken, saveStored, setAuthToken, tokenExpired } from './src/Apicall/Axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppInitializer from './src/Websocket/AppInitializer';
 import LoginScreen from './src/screens/Loginscreen';
@@ -338,7 +338,7 @@ function MainNavigator({ meData }) {
         drawerPosition: 'left',
         drawerLabelStyle: {
           color: '#03415A',
-          textAlign: 'center',
+          // textAlign: 'center',
           fontSize: 13
         },
         drawerActiveTintColor: '#129688',
@@ -428,65 +428,34 @@ function MainNavigator({ meData }) {
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [meData, setMeData] = useState(null);
-  const appState = useRef(AppState.currentState);
-
-  // Function to clear user credentials and log out
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem("UserDetails");
-      clearAuthToken();
-      console.log("User logged out automatically - app went to background");
-      setIsLoggedIn(false);
-      setMeData(null);
-    } catch (error) {
-      console.error("Error during automatic logout:", error);
-    }
-  };
-
-  // AppState listener to detect when app goes to background
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', nextAppState => {
-      if (appState.current === 'active' && (nextAppState === 'background' || nextAppState === 'inactive')) {
-        // App is going to background or being closed
-        console.log('App going to background - logging out');
-        handleLogout();
-      }
-      appState.current = nextAppState;
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, []);
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      try {
-        await debugAsyncStorage();
-        const userDetails = await getUserDetails();
-        console.log("user", userDetails);
+      const stored = await getStored();
 
-        if (userDetails && userDetails.accessToken) {
-          await setAuthToken(userDetails.accessToken);
+      if (stored?.accessToken && !tokenExpired(stored.accessToken)) {
+        setIsLoggedIn(true);
+        const me = await Me();
+        setMeData(me);
+      } else if (stored?.refreshToken) {
+        try {
+          const fresh = await refreshAccessToken(stored.refreshToken);
+          await saveStored(fresh);
           setIsLoggedIn(true);
-          const userMeData = await Me();
-          console.log("Me data ", userMeData);
-          setMeData(userMeData);
-        } else {
+          const me = await Me();
+          setMeData(me);
+        } catch {
+          await clearStored();
           setIsLoggedIn(false);
         }
-      } catch (error) {
-        console.error("Error checking login status:", error);
+      } else {
         setIsLoggedIn(false);
       }
     };
-    checkLoginStatus();
-    const loginListener = DeviceEventEmitter.addListener('onLoginSuccess', checkLoginStatus);
 
-    return () => {
-      loginListener.remove();
-    };
+    checkLoginStatus();
   }, []);
+
 
   if (isLoggedIn === null) {
     return null; // Optionally show Splashscreen

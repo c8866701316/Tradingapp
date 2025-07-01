@@ -4,10 +4,9 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import AutoScroll from "@homielab/react-native-auto-scroll";
 import { SafeAreaView } from "react-native-safe-area-context";
-import axios from "axios";
 import ConnectSignalR from "../Websocket/ConnectSignalR"; // Adjust the import path
 import { UserContext } from "./UserContext";
-import { getUserDetails } from "../Apicall/Axios"; // Adjust the import path
+import { api, getStored, getUserDetails } from "../Apicall/Axios"; // Adjust the import path
 import WatchlistSubscription from "./HomeComponts/WatchlistSubscription";
 import DataUpdateHandler from "./HomeComponts/DataUpdateHandler";
 import OrderModal from "./HomeComponts/OrderModal";
@@ -41,26 +40,28 @@ const HomeScreen = ({ navigation }) => {
     const maxRetries = 3;
     let retryCount = 0;
 
-    while (retryCount < maxRetries) { 
+    while (retryCount < maxRetries) {
       try {
         if (!ConnectSignalR || ConnectSignalR.state !== "Connected") {
           console.log(`Attempting SignalR connection (Attempt ${retryCount + 1}/${maxRetries})...`);
           await ConnectSignalR.start();
+          console.log("SignalR connected successfully.");
+          return true; // Indicate successful connection
         }
-        console.log("SignalR connected successfully.");
-        return;
+        console.log("SignalR already connected.");
+        return true;
       } catch (error) {
         console.error(`SignalR connection attempt ${retryCount + 1} failed:`, error);
         retryCount++;
         if (retryCount === maxRetries) {
           console.error("Max SignalR connection retries reached.");
-          return;
+          Alert.alert("Connection Error", "Failed to connect to the server. Please try again later.");
+          return false; // Indicate failure
         }
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait before retrying
       }
     }
   }, []);
-
   // Me Api call and Show Watchlist Name
   const fetchWatchlist = useCallback(async () => {
     if (hasFetchedWatchlist.current) {
@@ -70,11 +71,12 @@ const HomeScreen = ({ navigation }) => {
     hasFetchedWatchlist.current = true;
     console.log("Fetching watchlist, hasSelectedWatchlist:", hasSelectedWatchlist);
     try {
-      const userDetails = await getUserDetails();
+      const userDetails = await getStored();
       if (!userDetails?.accessToken) {
         throw new Error("Access token is missing.");
       }
-      const response = await axios.get(`${BASE_URL}/Me`, {
+      // const response = await api.get('/Me');
+      const response = await api.get('/Me', {
         headers: { Authorization: `Bearer ${userDetails.accessToken}` },
       });
 
@@ -124,8 +126,12 @@ const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     console.log("Running initialization useEffect...");
     const initialize = async () => {
-      await fetchWatchlist();
-      await connectSignalR();
+      const isConnected = await connectSignalR(); // Ensure SignalR is connected
+      if (isConnected) {
+        await fetchWatchlist(); // Fetch watchlist only if connected
+      } else {
+        console.error("Skipping watchlist fetch due to SignalR connection failure.");
+      }
     };
     initialize();
   }, [connectSignalR, fetchWatchlist]);

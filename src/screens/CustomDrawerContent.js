@@ -15,7 +15,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getUserDetails } from '../Apicall/Axios';
+import { getStored, getUserDetails } from '../Apicall/Axios';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ChangePassword from './Drawerscreens/ChangePassword';
 

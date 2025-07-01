@@ -21,7 +21,7 @@ const DataUpdateHandler = ({ selectedTabs, setData, selectedItem, setSelectedIte
       setData((prevData) => {
         const existingIndex = prevData.findIndex((item) => item.es === newData.es);
         if (existingIndex === -1) {
-          return [
+          return [ 
             ...prevData,
             {
               ...newData,
@@ -32,6 +32,7 @@ const DataUpdateHandler = ({ selectedTabs, setData, selectedItem, setSelectedIte
             },
           ];
         }
+        
         const prevItem = prevData[existingIndex];
         const newBidPrice = parseFloat(newData?.bp) || 0;
         const prevBidPrice = parseFloat(prevItem?.bp) || 0;

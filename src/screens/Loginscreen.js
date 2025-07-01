@@ -10,6 +10,7 @@ import {
     ActivityIndicator,
     Animated,
     Alert,
+    useColorScheme,
 } from 'react-native';
 import CheckBox from 'react-native-check-box';
 import LinearGradient from 'react-native-linear-gradient';
@@ -19,6 +20,7 @@ import { clientData, login, Me, saveToken, setAuthToken } from '../Apicall/Axios
 import ConnectSignalR from '../Websocket/ConnectSignalR';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSound } from '../contexts/SoundContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation }) => {
 
@@ -36,6 +38,51 @@ const LoginScreen = ({ navigation }) => {
         visible: false,
     });
     const fadeAnim = useRef(new Animated.Value(0)).current;
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === 'dark';
+
+    // Load saved credentials when component mounts
+    useEffect(() => {
+        const loadSavedCredentials = async () => {
+            try {
+                const savedUsername = await AsyncStorage.getItem('savedUsername');
+                const savedPassword = await AsyncStorage.getItem('savedPassword');
+                const rememberMe = await AsyncStorage.getItem('rememberMe');
+
+                if (rememberMe === 'true' && savedUsername) {
+                    setUserName(savedUsername);
+                    setIsChecked(true);
+
+
+                    if (savedPassword) {
+                        setPass(savedPassword);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading saved credentials:', error);
+            }
+        };
+
+        loadSavedCredentials();
+    }, []);
+
+    // Handle username change and check for saved password
+    const handleUsernameChange = async (text) => {
+        setUserName(text);
+        setUsernameError('');
+        setPass(''); // Clear password field when username changes
+
+        if (isChecked && text) {
+            try {
+                const savedPassword = await AsyncStorage.getItem(`password_${text}`);
+                if (savedPassword) {
+                    setPass(savedPassword);
+                }
+            } catch (error) {
+                console.error('Error checking saved password:', error);
+            }
+        }
+    };
 
     const showNotification = (message, type) => {
         setNotification({
@@ -69,7 +116,6 @@ const LoginScreen = ({ navigation }) => {
 
     const validateInputs = () => {
         let isValid = true;
-
         if (!userName.trim()) {
             setUsernameError("Please enter a username");
             isValid = false;
@@ -86,6 +132,7 @@ const LoginScreen = ({ navigation }) => {
 
         return isValid;
     };
+
     const onLoginPress = async () => {
         if (!validateInputs()) {
             return;
@@ -107,6 +154,26 @@ const LoginScreen = ({ navigation }) => {
 
                 await saveToken(loginApi);
                 setAuthToken(loginApi.accessToken);
+
+                // Save credentials if "Remember Me" is checked
+                if (isChecked) {
+                    try {
+                        await AsyncStorage.setItem('savedUsername', userName);
+                        await AsyncStorage.setItem(`password_${userName}`, pass);
+                        await AsyncStorage.setItem('rememberMe', 'true');
+                    } catch (error) {
+                        console.error('Error saving credentials:', error);
+                    }
+                } else {
+                    // Clear saved credentials if "Remember Me" is unchecked
+                    try {
+                        await AsyncStorage.removeItem('savedUsername');
+                        await AsyncStorage.removeItem(`password_${userName}`);
+                        await AsyncStorage.removeItem('rememberMe');
+                    } catch (error) {
+                        console.error('Error removing credentials:', error);
+                    }
+                }
 
                 const meApiResponse = await Me();
                 console.log("meApiResponse", meApiResponse);
@@ -164,9 +231,61 @@ const LoginScreen = ({ navigation }) => {
     }, [loginData]);
 
 
-    const toggleCheckbox = () => {
-        setIsChecked(!isChecked);
+
+    const toggleCheckbox = async () => {
+        const newCheckedState = !isChecked;
+        setIsChecked(newCheckedState);
+
+        // If user is checking the box and username exists, try to load password
+        if (newCheckedState && userName) {
+            try {
+                const savedPassword = await AsyncStorage.getItem(`password_${userName}`);
+                if (savedPassword) {
+                    setPass(savedPassword);
+                }
+            } catch (error) {
+                console.error('Error loading saved password:', error);
+            }
+        } else {
+            setPass(''); // Clear password if "Remember Me" is unchecked
+        }
     };
+    // const handleViewSavedPassword = async () => {
+    //     try {
+    //         const savedPassword = await AsyncStorage.getItem(`password_${userName}`);
+    //         if (savedPassword) {
+    //             Alert.alert(
+    //                 "Saved Password",
+    //                 `Password for ${userName} is saved. Would you like to use it?`,
+    //                 [
+    //                     {
+    //                         text: "Cancel",
+    //                         style: "cancel"
+    //                     },
+    //                     {
+    //                         text: "Use It",
+    //                         onPress: () => {
+    //                             setPass(savedPassword);
+    //                             setIsChecked(true);
+    //                         }
+    //                     }
+    //                 ]
+    //             );
+    //         } else {
+    //             Alert.alert(
+    //                 "No Saved Password",
+    //                 `No password is saved for ${userName || 'this user'}.`
+    //             );
+    //         }
+    //     } catch (error) {
+    //         console.error('Error retrieving saved password:', error);
+    //         Alert.alert(
+    //             "Error",
+    //             "Could not retrieve saved password."
+    //         );
+    //     }
+    // };
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -183,27 +302,45 @@ const LoginScreen = ({ navigation }) => {
 
                 <View style={{ paddingHorizontal: 10, paddingTop: 15, }}>
                     {/* User ID Input */}
-                    <View style={styles.inputContainer}>
+                    <View
+                        style={[
+                            styles.inputContainer,
+                            // { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }
+                        ]}
+                    >
                         <SimpleLineIcons name="envelope" size={20} color="#315966" style={styles.icon} />
                         <TextInput
                             placeholder="User Id"
                             placeholderTextColor="#B9B5B9"
-                            style={styles.input}
+                            style={[
+                                styles.input,
+                                // { color: isDark ? '#fff' : '#000' }      // text
+                            ]}
                             value={userName}
-                            onChangeText={(text) => { setUserName(text); setUsernameError("") }}
+                            onChangeText={handleUsernameChange}
+                            autoCapitalize="none"
                         />
                     </View>
                     {usernameError ? <Text style={styles.errorText}>{usernameError}</Text> : null}
                     {/* Password Input */}
-                    <View style={styles.inputContainer}>
+                    <View
+                        style={[
+                            styles.inputContainer,
+                            // { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }
+                        ]}
+                    >
                         <Ionicons name="key-outline" size={20} color="#315966" style={styles.icon} />
                         <TextInput
                             placeholder="Password"
                             placeholderTextColor="#B9B5B9"
                             secureTextEntry
                             value={pass}
-                            style={styles.input}
+                            style={[
+                                styles.input,
+                                // { color: isDark ? '#fff' : '#000' }      // text
+                            ]}
                             onChangeText={(text) => { setPass(text); setPasswordError(""); }}
+                            autoCapitalize="none"
                         />
                     </View>
                     {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
@@ -212,13 +349,15 @@ const LoginScreen = ({ navigation }) => {
                 {/* Remember section */}
                 <View style={styles.rememberContainer}>
                     <CheckBox
-                        value={isChecked}
+                        isChecked={isChecked}
                         onClick={toggleCheckbox}
-                        tintColors={{ true: 'orange', false: '#fff' }} // Set the color for checked and unchecked
-                        style={{ top: -4, color: '#fff' }}
+                        checkBoxColor={isChecked ? 'white' : '#315966'} // Main color
+                        checkedCheckBoxColor="white"  // Color when checked
+                        uncheckedCheckBoxColor="white" // Color when unchecked
+                        style={{ top: -4 }}
                     />
                     <Text style={styles.remember}>Remember Me</Text>
-                    <Pressable >
+                    <Pressable>
                         <Text style={styles.savepass}>View Saved Password</Text>
                     </Pressable>
                 </View>
@@ -333,7 +472,8 @@ const styles = StyleSheet.create({
     },
     input: {
         // backgroundColor:'pink',
-        width: '90%'
+        width: '90%',
+        color: '#000',
     },
     icon: {
         marginRight: 10,
@@ -352,7 +492,8 @@ const styles = StyleSheet.create({
     savepass: {
         color: 'white',
         fontSize: 11,
-        left: 13
+        left: 13,
+        textDecorationLine: 'underline',
 
     },
     submitbtn: {

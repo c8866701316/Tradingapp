@@ -8,8 +8,8 @@ import {
   Animated,
   StyleSheet,
 } from "react-native";
-import axios from "axios";
 import { getUserDetails } from "../api/AxiosApi";
+import { api } from "../../Apicall/Axios";
 
 const BASE_URL = "https://tradep.clustersofttech.com/api";
 
@@ -47,7 +47,7 @@ const OrderModal = ({ modalVisible, setModalVisible, selectedItem, setSelectedIt
 
   const fetchDropdownData = useCallback(async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/Master/FillDropdown`, {
+      const response = await api.get('/Master/FillDropdown', {
         params: { key: "3A4FBF37-CDAA-436C-B8D6-CCD9F6E099EE", option: "Normal" },
       });
       if (response.data && response.data.data) {

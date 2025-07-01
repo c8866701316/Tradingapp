@@ -1,8 +1,116 @@
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DeviceEventEmitter } from "react-native";
+import { jwtDecode } from "jwt-decode";
 
 const BASE_URL = "https://tradep.clustersofttech.com/api";
+
+// const BASE_URL = 'https://tradep.clustersofttech.com/api';
+
+export const api = axios.create({ baseURL: BASE_URL });
+
+// ─────────── Helpers ──────────────
+
+export const getStored = async () =>
+  JSON.parse((await AsyncStorage.getItem('UserDetails')) || 'null');
+
+
+export const saveStored = async (data) =>
+  AsyncStorage.setItem('UserDetails', JSON.stringify(data));
+
+export const clearStored = async () =>
+  AsyncStorage.removeItem('UserDetails');
+
+export const tokenExpired = (token) => {
+  try {
+    const { exp } = jwtDecode(token);
+    return Date.now() >= exp * 1000;
+  } catch {
+    return true;
+  }
+};
+
+// ─────────── Refresh Token API ──────────────
+
+export const refreshAccessToken = async (refreshToken) => {
+  const res = await api.post('/Auth/RefreshToken', {
+    refreshToken,
+  });
+
+  if (!res.data?.data?.accessToken) {
+    throw new Error('No accessToken in refresh response');
+  }
+
+  return res.data.data;
+};
+
+// ─────────── Interceptors ──────────────
+
+let isRefreshing = false;
+let queue = [];
+
+api.interceptors.request.use(async (config) => {
+  const stored = await getStored();
+
+  if (stored?.accessToken) {
+    config.headers.Authorization = `Bearer ${stored.accessToken}`;
+  }
+
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const original = error.config;
+
+    if (error.response?.status === 401 && !original._retry) {
+      original._retry = true;
+
+      const stored = await getStored();
+      if (!stored?.refreshToken) {
+        await clearStored();
+        DeviceEventEmitter.emit('onLogout');
+        return Promise.reject(error);
+      }
+
+      // Queue handling if multiple 401s
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          queue.push({ resolve, reject });
+        })
+          .then((token) => {
+            original.headers.Authorization = `Bearer ${token}`;
+            return api(original);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      isRefreshing = true;
+
+      try {
+        const fresh = await refreshAccessToken(stored.refreshToken);
+        await saveStored(fresh);
+
+        queue.forEach((p) => p.resolve(fresh.accessToken));
+        queue = [];
+
+        original.headers.Authorization = `Bearer ${fresh.accessToken}`;
+        return api(original);
+      } catch (e) {
+        await clearStored();
+        DeviceEventEmitter.emit('onLogout');
+        queue.forEach((p) => p.reject(e));
+        queue = [];
+        return Promise.reject(e);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 export const setAuthToken = (accessToken) => {
   if (accessToken) {
@@ -23,13 +131,21 @@ export const clearAuthToken = async () => {
 // Save token and user details
 export const saveToken = async (userData) => {
   if (!userData || !userData.accessToken) {
-    console.error("Invalid user data. Token is missing.", userData);
+    console.error('Invalid user data. Token is missing.', userData);
+    return;
   }
   try {
-    await AsyncStorage.setItem("UserDetails", JSON.stringify(userData));
-    console.log("User details saved successfully.");
+    // Ensure userName and password are included if provided
+    const dataToSave = {
+      accessToken: userData.accessToken,
+      refreshToken: userData.refreshToken,
+      userName: userData.userName || '',
+      password: userData.password || '',
+    };
+    await AsyncStorage.setItem('UserDetails', JSON.stringify(dataToSave));
+    console.log('User details saved successfully.');
   } catch (error) {
-    console.error("Error saving user details to AsyncStorage:", error);
+    console.error('Error saving user details to AsyncStorage:', error);
   }
 };
 
@@ -48,6 +164,7 @@ export const saveToken = async (userData) => {
 //     return null;
 //   }
 // };
+
 
 
 // Retrieve user details
@@ -70,21 +187,10 @@ export const getUserDetails = async () => {
   }
 };
 
-export const debugAsyncStorage = async () => {
-  try {
-    const userDetails = await AsyncStorage.getItem('UserDetails');
-    // console.log('Current AsyncStorage UserDetails:', userDetails);
-    return userDetails ? JSON.parse(userDetails) : null;
-  } catch (error) {
-    console.error('Error reading AsyncStorage:', error);
-    return null;
-  }
-};
-
 // Login API
 export const login = async (obj) => {
   try {
-    const response = await axios.post(`${BASE_URL}/Auth/Login`, obj);
+    const response = await api.post('/Auth/Login', obj);
     console.log('Login API Status:', response.status);
     console.log("Login API Response:", JSON.stringify(response.data, null, 2));
 
@@ -124,13 +230,13 @@ export const login = async (obj) => {
 // Me API Call
 export const Me = async () => {
   try {
-    const userDetails = await getUserDetails();
+    const userDetails = await getStored();
     // console.log("User Details in Me API:", userDetails);
     if (!userDetails?.accessToken) {
       throw new Error("Access token is missing.");
     }
 
-    const response = await axios.get(`${BASE_URL}/Me`, {
+    const response = await api.get('/Me', {
       headers: {
         'Authorization': `Bearer ${userDetails.accessToken}`
       }
@@ -151,9 +257,8 @@ export const Me = async () => {
 // Client Data API Call
 export const clientData = async () => {
   try {
-    const userDetails = await getUserDetails();
-    // console.log("default header :", axios.defaults.headers);
-    const response = await axios.get(`${BASE_URL}/Me`, {
+    const userDetails = await getStored();
+    const response = await api.get('/Me', {
       headers: {
         'Authorization': `Bearer ${userDetails.accessToken}`
       }

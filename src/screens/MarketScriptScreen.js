@@ -2,9 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, FlatList, Pressable, ActivityIndicator, Alert, Animated } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
-import axios from 'axios';
 import moment from 'moment'; // You need to install this: npm install moment
-import { getUserDetails } from '../Apicall/Axios';
+import { api, getUserDetails } from '../Apicall/Axios';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSound } from '../contexts/SoundContext';
 
@@ -78,7 +77,7 @@ const MarketScriptScreen = ({ route, navigation }) => {
         const fetchDropdownData = async () => {
             setIsLoading(true);
             try {
-                const response = await axios.get(`${BASE_URL}/Master/FillDropdown`, {
+                const response = await api.get('/Master/FillDropdown', {
                     params: {
                         key: 'EE419087-6BF9-4975-B98B-0511381D9601',
                         option1: title // Using the screen title as option1

@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from
 import MaterialIcons from 'react-native-vector-icons/Ionicons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { UserContext } from './UserContext';
-import axios from 'axios';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { api } from '../Apicall/Axios';
 
 
 const BASE_URL = "https://tradep.clustersofttech.com/api";
@@ -52,7 +52,7 @@ const Selectmarketscreen = ({ navigation, route }) => {
         };
         console.log("payload option:", payload);
         try {
-            const response = await axios.get(`${BASE_URL}/Master/FillDropdown`, {
+            const response = await api.get('/Master/FillDropdown', {
                 params: payload
             });
             const json = response.data;

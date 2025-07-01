@@ -1,7 +1,6 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { getUserDetails } from '../Apicall/Axios';
+import { api, getUserDetails } from '../Apicall/Axios';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
@@ -20,8 +19,8 @@ const RejectionLogs = ({ filters }) => {
             const userDetails = await getUserDetails();
             if (!userDetails?.accessToken) throw new Error('Access token is missing.');
 
-            const response = await axios.post(
-                'https://tradep.clustersofttech.com/api/OrderApi/GetOrderRejectionLog',
+            const response = await api.post(
+                '/OrderApi/GetOrderRejectionLog',
                 {},
                 {
                     headers: {
