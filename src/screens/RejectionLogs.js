@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+const BASE_URL = "https://tradep.clustersofttech.com/api";
 
 const RejectionLogs = ({ filters }) => {
     const [loading, setLoading] = useState(false);
@@ -19,9 +20,7 @@ const RejectionLogs = ({ filters }) => {
             const userDetails = await getUserDetails();
             if (!userDetails?.accessToken) throw new Error('Access token is missing.');
 
-            const response = await api.post(
-                '/OrderApi/GetOrderRejectionLog',
-                {},
+            const response = await api.post(`${BASE_URL}/OrderApi/GetOrderRejectionLog`, {},
                 {
                     headers: {
                         'Content-Type': 'application/json',
@@ -30,14 +29,12 @@ const RejectionLogs = ({ filters }) => {
                 }
             );
             console.log("getorder Rejection data", response.data);
-
             if (response.data?.status && Array.isArray(response.data.data)) {
                 setRejectionLogs(response.data.data);
                 setFilteredLogs(response.data.data); // Initialize filtered logs with all data
             } else {
                 setRejectionLogs([]);
                 setFilteredLogs([]);
-
             }
         } catch (error) {
             console.error('Error fetching rejection logs:', error);
@@ -62,7 +59,6 @@ const RejectionLogs = ({ filters }) => {
                     log.symbolName.includes(filters.market)
                 );
             }
-
             // Filter by date range
             if (filters.fromDate && filters.toDate) {
                 const from = moment(filters.fromDate, 'DD-MM-YYYY');
@@ -73,22 +69,15 @@ const RejectionLogs = ({ filters }) => {
                     return logDate.isBetween(from, to, null, '[]'); // inclusive
                 });
             }
-
             setFilteredLogs(result);
         }
     }, [filters, rejectionLogs]);
 
     const formatDateTime = (dateTimeString) => {
-        // Split the string into date and time parts
+
         const [datePart, timePart] = dateTimeString.split('T');
-
-        // Split the date into components
         const [year, month, day] = datePart.split('-');
-
-        // Reformat the date as DD-MM-YYYY
         const formattedDate = `${day}-${month}-${year}`;
-
-        // Combine with the time part
         return `${formattedDate} ${timePart}`;
     };
 
@@ -233,7 +222,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
         textAlign: 'center',
     },
-
     date: {
         fontSize: 10,
         color: '#03415B',

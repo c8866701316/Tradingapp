@@ -2,20 +2,16 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, FlatList, Pressable, ActivityIndicator, Alert, Animated } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
-import moment from 'moment'; // You need to install this: npm install moment
+import moment from 'moment';
 import { api, getUserDetails } from '../Apicall/Axios';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSound } from '../contexts/SoundContext';
 
-
 const MarketScriptScreen = ({ route, navigation }) => {
     const BASE_URL = "https://tradep.clustersofttech.com/api";
     const { playNotificationSound, isSoundEnabled } = useSound();
-
-    console.log("Route params:", route.params);
     const { title, scripts, option1 } = route.params;
     const [search, setSearch] = useState('');
-    const [expiryData, setExpiryData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [expiryDate, setExpiryDate] = useState('');
     const [addedScripts, setAddedScripts] = useState([]);
@@ -41,7 +37,6 @@ const MarketScriptScreen = ({ route, navigation }) => {
         if (isSoundEnabled) {
             playNotificationSound();
         }
-
         // Fade in animation
         Animated.timing(fadeAnim, {
             toValue: 1,
@@ -80,17 +75,15 @@ const MarketScriptScreen = ({ route, navigation }) => {
                 const response = await api.get('/Master/FillDropdown', {
                     params: {
                         key: 'EE419087-6BF9-4975-B98B-0511381D9601',
-                        option1: title // Using the screen title as option1
+                        option1: title
                     }
                 });
                 console.log('Select market Data:', response.data);
-                // Set the expiry date from API response
                 if (response.data?.status && response.data.data?.length > 0) {
                     const rawDate = response.data.data[0].text; // e.g. "24-04-2025"
                     const formattedDate = moment(rawDate, "DD-MM-YYYY").format("YYYY-MM-DD");
                     setExpiryDate(formattedDate);
                 }
-
             } catch (error) {
                 console.error('Error Select market data:', error);
             } finally {
@@ -108,7 +101,6 @@ const MarketScriptScreen = ({ route, navigation }) => {
             watchlistId: option1,
         };
         console.log("payload market:", payload);
-
         try {
             const userDetails = await getUserDetails();
             if (!userDetails?.accessToken) {
@@ -122,20 +114,17 @@ const MarketScriptScreen = ({ route, navigation }) => {
                 },
                 body: JSON.stringify(payload),
             });
-
             const json = await response.json();
             console.log("json", json);
 
             if (json?.status) {
                 // Show success notification
                 showNotification(json.message || "Script added successfully", "success");
-
                 // Remove the added item from the filteredScripts
                 setFilteredScripts(prev =>
                     prev.filter(script => script.id !== item.id)
                 );
             } else {
-                // Show error notification
                 showNotification(json.message || "Failed to add script", "error");
             }
 
@@ -144,9 +133,6 @@ const MarketScriptScreen = ({ route, navigation }) => {
             showNotification("Failed to add script. Please try again.", "error");
         }
     };
-
-
-
 
     return (
         <SafeAreaView style={styles.container}>
@@ -219,12 +205,13 @@ const MarketScriptScreen = ({ route, navigation }) => {
                     </Text>
                 </Animated.View>
             )}
+
         </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1},
+    container: { flex: 1 },
     header: {
         backgroundColor: "#03415A",
         flexDirection: "row",

@@ -1,23 +1,11 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    FlatList,
-    Modal,
-    Pressable,
-    TextInput,
-    Animated,
-    Alert,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, TextInput, Animated, Alert } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { api, getUserDetails } from "../Apicall/Axios"; // Adjust the import path
-import ConnectSignalR from "../Websocket/ConnectSignalR"; // Adjust the import path
+import { api, getUserDetails } from "../Apicall/Axios";
+import ConnectSignalR from "../Websocket/ConnectSignalR";
 import { UserContext } from "./UserContext";
-import debounce from "lodash.debounce";
 
 const BASE_URL = "https://tradep.clustersofttech.com/api";
 
@@ -102,26 +90,22 @@ const ScriptListScreen = ({ route, navigation }) => {
     const [ignore, setIgnore] = useState(false);
 
     const debouncedHandleNewData = useCallback(
-        // debounce(
         (newData) => {
             if (!newData?.s || !category) {
                 console.log("Invalid data or category:", { newData, category });
                 return;
             }
-
             const watchlistPrefix = newData.s.split(":")[0];
             if (watchlistPrefix !== category) {
                 console.log(`Ignoring update for ${newData.s}, current category: ${category}`);
                 return;
             }
-
             console.log(`Processing update for ${newData.s}`);
             setData((prevData) => {
                 const existingIndex = prevData.findIndex((item) => item.es === newData.es);
                 if (existingIndex === -1) {
                     return [...prevData, { ...newData, bidPriceColor: "black", askPriceColor: "black", highPriceColor: "black", lowPriceColor: "black" }];
                 }
-
                 const prevItem = prevData[existingIndex];
                 const newBidPrice = parseFloat(newData?.bp) || 0;
                 const prevBidPrice = parseFloat(prevItem?.bp) || 0;
@@ -139,7 +123,6 @@ const ScriptListScreen = ({ route, navigation }) => {
 
                 const updatedData = [...prevData];
                 updatedData[existingIndex] = newData;
-
                 return updatedData;
             });
 
@@ -147,7 +130,6 @@ const ScriptListScreen = ({ route, navigation }) => {
                 setSelectedItem(newData);
             }
         },
-        // }, 10),
         [selectedItem, category]
     );
 
@@ -220,7 +202,6 @@ const ScriptListScreen = ({ route, navigation }) => {
             if (!userDetails?.accessToken) {
                 throw new Error("Access token is missing.");
             }
-
             const watchlistId = meData?.watchList?.[`${category}`]?.id;
             if (!watchlistId) {
                 throw new Error("Watchlist ID not found for selected category.");
@@ -554,6 +535,7 @@ const ScriptListScreen = ({ route, navigation }) => {
                     </View>
                 </View>
             </Modal>
+
             {notification.visible && (
                 <Animated.View
                     style={[

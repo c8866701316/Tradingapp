@@ -1,17 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    StyleSheet,
-    Image,
-    Pressable,
-    ActivityIndicator,
-    Animated,
-    Alert,
-    useColorScheme,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Pressable, ActivityIndicator, Animated, useColorScheme, } from 'react-native';
 import CheckBox from 'react-native-check-box';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -26,7 +14,7 @@ const LoginScreen = ({ navigation }) => {
 
     const { playNotificationSound, isSoundEnabled } = useSound();
     const [loginData, setLoginData] = useState(null);
-    const [loading, setLoading] = useState(false); // State to track loading
+    const [loading, setLoading] = useState(false);
     const [userName, setUserName] = useState("");
     const [pass, setPass] = useState("");
     const [isChecked, setIsChecked] = useState(false);
@@ -48,12 +36,9 @@ const LoginScreen = ({ navigation }) => {
                 const savedUsername = await AsyncStorage.getItem('savedUsername');
                 const savedPassword = await AsyncStorage.getItem('savedPassword');
                 const rememberMe = await AsyncStorage.getItem('rememberMe');
-
                 if (rememberMe === 'true' && savedUsername) {
                     setUserName(savedUsername);
                     setIsChecked(true);
-
-
                     if (savedPassword) {
                         setPass(savedPassword);
                     }
@@ -62,7 +47,6 @@ const LoginScreen = ({ navigation }) => {
                 console.error('Error loading saved credentials:', error);
             }
         };
-
         loadSavedCredentials();
     }, []);
 
@@ -70,7 +54,7 @@ const LoginScreen = ({ navigation }) => {
     const handleUsernameChange = async (text) => {
         setUserName(text);
         setUsernameError('');
-        setPass(''); // Clear password field when username changes
+        setPass('');
 
         if (isChecked && text) {
             try {
@@ -211,7 +195,6 @@ const LoginScreen = ({ navigation }) => {
         }
     };
 
-
     const clientsData = async () => {
         try {
             console.log("Fetching watchlist data...");
@@ -229,8 +212,6 @@ const LoginScreen = ({ navigation }) => {
             clientsData();
         }
     }, [loginData]);
-
-
 
     const toggleCheckbox = async () => {
         const newCheckedState = !isChecked;
@@ -250,42 +231,6 @@ const LoginScreen = ({ navigation }) => {
             setPass(''); // Clear password if "Remember Me" is unchecked
         }
     };
-    // const handleViewSavedPassword = async () => {
-    //     try {
-    //         const savedPassword = await AsyncStorage.getItem(`password_${userName}`);
-    //         if (savedPassword) {
-    //             Alert.alert(
-    //                 "Saved Password",
-    //                 `Password for ${userName} is saved. Would you like to use it?`,
-    //                 [
-    //                     {
-    //                         text: "Cancel",
-    //                         style: "cancel"
-    //                     },
-    //                     {
-    //                         text: "Use It",
-    //                         onPress: () => {
-    //                             setPass(savedPassword);
-    //                             setIsChecked(true);
-    //                         }
-    //                     }
-    //                 ]
-    //             );
-    //         } else {
-    //             Alert.alert(
-    //                 "No Saved Password",
-    //                 `No password is saved for ${userName || 'this user'}.`
-    //             );
-    //         }
-    //     } catch (error) {
-    //         console.error('Error retrieving saved password:', error);
-    //         Alert.alert(
-    //             "Error",
-    //             "Could not retrieve saved password."
-    //         );
-    //     }
-    // };
-
 
     return (
         <SafeAreaView style={styles.container}>
@@ -386,6 +331,7 @@ const LoginScreen = ({ navigation }) => {
                     <Text style={styles.signupLink}> Sign Up</Text>
                 </Pressable>
             </View>
+
             {/* Notification */}
             {notification.visible && (
                 <Animated.View

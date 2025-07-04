@@ -6,11 +6,9 @@ import { UserContext } from './UserContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSound } from '../contexts/SoundContext';
 
-
 const Sessionscreen = () => {
 
   const meData = React.useContext(UserContext);
-    // console.log("medata in Session screen ", meData);
   const { playNotificationSound, isSoundEnabled } = useSound();
   const [positions, setPositions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -60,10 +58,7 @@ const Sessionscreen = () => {
 
         const data = await response.json();
         console.log("session pop-up data", data);
-
         console.log("Get Position Response:", JSON.stringify(data, null, 2));
-
-        // setPositionData(data.data || []);
         setPositions(data.data || []);
 
       } catch (error) {
@@ -73,21 +68,20 @@ const Sessionscreen = () => {
         setLoading(false);
       }
     };
-
     fetchPosition();
   }, []);
 
 
   const handleClosePosition = (item) => {
     const isSellPosition = item.netQty < 0 || item.netLot < 0;
-    const reversedNetQty = Math.abs(item.netQty); // Convert to positive
-    const reversedNetLot = Math.abs(item.netLot); // Convert to positive
-    const side = isSellPosition ? 1 : -1; // If sell position, close with buy (1); if buy, close with sell (-1)
+    const reversedNetQty = Math.abs(item.netQty);
+    const reversedNetLot = Math.abs(item.netLot);
+    const side = isSellPosition ? 1 : -1;
 
     setSelectedPosition({
       ...item,
-      netQty: reversedNetQty, // Pass positive value
-      netLot: reversedNetLot, // Pass positive value
+      netQty: reversedNetQty,
+      netLot: reversedNetLot,
     });
     setTradeSide(side); // Set buy (1) or sell (-1)
     setClosePrice(item.ltp.toString()); // Set default close price to LTP
@@ -188,15 +182,11 @@ const Sessionscreen = () => {
   };
   // subscribe / unsubscribe method 
   const handleNewData = (newData) => {
-    // console.log("Received new data:", newData);
-    // console.log(Array.isArray(newData), "new data in array ");
-
     setPositionData((prevData) => {
       const updatedData = [...prevData];
-      // console.log("Updated Data:", updatedData);
       const newPriceChanges = { ...priceChanges };
-        const newHighLowPriceChanges = { ...highLowPriceChanges };
-        const existingIndex = updatedData.findIndex(
+      const newHighLowPriceChanges = { ...highLowPriceChanges };
+      const existingIndex = updatedData.findIndex(
         (item) => item.es === newData.es
       );
       if (existingIndex !== -1) {
@@ -211,7 +201,6 @@ const Sessionscreen = () => {
         const newLowPrice = parseFloat(newData?.lp) || 0;
         const prevHighPrice = parseFloat(prevItem?.hp) || 0;
         const newHighPrice = parseFloat(newData?.hp) || 0;
-
 
         // 🔹 Set Bid Price Color (Green if Increased, Red if Decreased)
         newPriceChanges[newData.s] = {
@@ -242,7 +231,6 @@ const Sessionscreen = () => {
         updatedData.push(newData);
       }
       prevDataRef.current[newData.s] = newData;
-      // Update state for color changes
       setHighLowPriceChanges(newHighLowPriceChanges);
       setPriceChanges((prev) => ({ ...prev, [newData.s]: newPriceChanges[newData.s] }));
       return updatedData;
@@ -279,7 +267,7 @@ const Sessionscreen = () => {
     ConnectSignalR.on("ReceiveSubscribedScriptUpdate", handleNewData);
     return () => ConnectSignalR.off("ReceiveSubscribedScriptUpdate", handleNewData);
 
-  }, [positions]);    
+  }, [positions]);
 
   useEffect(() => {
     const handleSubscribeFinished = (msg) => {
@@ -287,7 +275,6 @@ const Sessionscreen = () => {
     };
     const handleUnsubscribeFinished = (msg) => {
       console.log("positions OnUnsubscribeFinished", msg);
-      // setPositionData([]);
     };
 
     ConnectSignalR.on("OnSubscribeFinished", handleSubscribeFinished);
@@ -314,8 +301,6 @@ const Sessionscreen = () => {
     });
     console.log("normalizedWatchlist position", normalizedWatchlist);
 
-    // setPositions(normalizedWatchlist);
-
     if (normalizedWatchlist.length > 0) {
       const mcxData = normalizedWatchlist.find(item => item.category === 'MCX');
       const nseData = normalizedWatchlist.find(item => item.category === 'NSE');
@@ -323,26 +308,18 @@ const Sessionscreen = () => {
         ...(mcxData?.items || []),
         ...(nseData?.items || [])
       ];
-
       setPositions(combinedScripts);
     }
-
   }, [meData]);
-
 
   const matchedItems = positionData.filter((posData) => {
     return positions.some((pos) => pos.symbol === posData.s);
   });
 
-  matchedItems.forEach((item, index) => {
-    // console.log(`${index}:`, item);
-  });
+  matchedItems.forEach((item, index) => { });
 
   const mergedPositions = positions.map((item) => {
     const matched = matchedItems.find((m) => m.s === item.symbol);
-    // console.log("mached",matched);
-
-    // console.log("ltp",matched?.ltp);
     const latPriceSet =
       matched?.ltp == 0
         ? matched?.op == 0
@@ -350,15 +327,13 @@ const Sessionscreen = () => {
           : matched?.op + matched?.ch
         : matched?.ltp;
 
-    // console.log("latPriceSet",latPriceSet);
-
     const total = matched
       ? item?.tsq * item?.sap + item.netQty * latPriceSet - item?.tbq * item?.bap
       : 0;
     return {
       ...item,
       ...matched,
-      ltp: matched?.ltp ?? item.ltp, // fallback to original if no match      
+      ltp: matched?.ltp ?? item.ltp,
       mtm: total,
     };
   });
@@ -373,11 +348,9 @@ const Sessionscreen = () => {
       type,
       visible: true,
     });
-     // Play notification sound if enabled
     if (isSoundEnabled) {
       playNotificationSound();
     }
-
     // Fade in animation
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -406,7 +379,6 @@ const Sessionscreen = () => {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerText}>Position Watchlist</Text>
-        {/* <Text style={styles.betHistory}>⏳ Bet History</Text> */}
       </View>
 
       {/* Exposure Section */}
@@ -429,11 +401,11 @@ const Sessionscreen = () => {
         </View>
       ) : positions.length === 0 ? (
         <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>NOTHING TO SHOW</Text>
-                    <TouchableOpacity>
-                        <Text style={styles.refreshText}>↻</Text>
-                    </TouchableOpacity>
-                </View>
+          <Text style={styles.emptyText}>NOTHING TO SHOW</Text>
+          <TouchableOpacity>
+            <Text style={styles.refreshText}>↻</Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <ScrollView contentContainerStyle={{ padding: 10 }}>
           {mergedPositions.map((item, index) => (
@@ -477,7 +449,7 @@ const Sessionscreen = () => {
                     {item.mtm.toFixed(2)}
                   </Text>
                 </Text>
-                {(item.netQty !== 0 ) && (
+                {(item.netQty !== 0) && (
                   <TouchableOpacity style={styles.closesButton} onPress={() => handleClosePosition(item)}>
                     <Text style={styles.closeText}>✖</Text>
                   </TouchableOpacity>
@@ -639,16 +611,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 50,
-},
-emptyText: {
+  },
+  emptyText: {
     fontSize: 16,
     color: '#999',
     marginBottom: 10,
-},
-refreshText: {
+  },
+  refreshText: {
     fontSize: 24,
     color: '#007AFF',
-},
+  },
   header: {
     backgroundColor: '#03415A',
     padding: 10,
@@ -694,7 +666,6 @@ refreshText: {
     color: 'white',
     fontSize: 16,
   },
-
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -715,95 +686,80 @@ refreshText: {
     marginBottom: 4,
     width: '100%', // Ensure full width
   },
-
   leftLabel: {
     color: '#888',
     fontSize: 10,
     fontWeight: '600',
-    textAlign: 'left', // Align text to left
+    textAlign: 'left',
   },
-
   leftValue: {
     color: '#03415A',
     fontSize: 11,
     fontWeight: 'bold',
   },
-
   rightLabel: {
     color: '#888',
     fontSize: 10,
     fontWeight: '600',
-    textAlign: 'right', // Align text to right
+    textAlign: 'right',
   },
-
   rightValue: {
     color: '#03415A',
     fontSize: 11,
     fontWeight: 'bold',
     textAlign: 'right',
   },
-
   topLabel: {
     flex: 1,
     color: '#888',
     fontSize: 10,
-    fontWeight: '600',
-    // textAlign: 'center',
+    fontWeight: '600'
   },
-
   topValue: {
-    // flex: 1,
     color: '#03415A',
     fontSize: 11,
     fontWeight: 'bold',
     textAlign: 'center',
   },
-
   middleRow: {
     marginBottom: 4,
-    // backgroundColor: 'pink',
     width: '100%',
   },
-
   rowContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4, // Add spacing between rows if needed
+    marginBottom: 4,
   },
-
   leftText: {
     fontSize: 10,
     color: '#888',
     fontWeight: '600',
     textAlign: 'left',
-    flex: 1, // Takes 1/3 of space but aligns left
+    flex: 1,
   },
-
   centerText: {
     fontSize: 10,
     color: '#888',
     fontWeight: '600',
     textAlign: 'center',
-    flex: 1, // Takes 1/3 of space and centers
+    flex: 1,
   },
-
   rightText: {
     fontSize: 10,
     color: '#888',
     fontWeight: '600',
     textAlign: 'right',
-    flex: 1, // Takes 1/3 of space but aligns right
+    flex: 1,
   },
-
   bold: {
     fontSize: 11,
     color: '#03415A',
   },
   bottomRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // This pushes items to opposite ends
-    alignItems: 'center', // Vertically centers items
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 4,
     width: '100%',
   },
@@ -861,13 +817,11 @@ refreshText: {
     fontSize: 13,
     fontWeight: 'bold',
   },
-
   selectionContainer: {
     marginBottom: 10,
   },
   radioContainer: {
-    flexDirection: 'row',
-    // justifyContent: 'space-between',
+    flexDirection: 'row'
   },
   radioButton: {
     flexDirection: 'row',
@@ -915,7 +869,6 @@ refreshText: {
     backgroundColor: '#f5f5f5',
     color: '#03415A',
   },
-
   priceInput: {
     borderWidth: 1,
     borderColor: '#ddd',
@@ -923,7 +876,6 @@ refreshText: {
     padding: 5,
     backgroundColor: '#f5f5f5',
     color: '#03415A',
-    // marginBottom: 5,
   },
   priceInWords: {
     color: '#555',

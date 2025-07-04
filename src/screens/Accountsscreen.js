@@ -4,7 +4,6 @@ import { getUserDetails } from '../Apicall/Axios';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-
 const BASE_URL = "https://tradep.clustersofttech.com/api";
 
 const Accountsscreen = () => {
@@ -27,7 +26,6 @@ const Accountsscreen = () => {
         const now = new Date();
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(now.getDate() - 7);
-
         const dateFrom = sevenDaysAgo.toISOString();
         const dateTo = now.toISOString();
 

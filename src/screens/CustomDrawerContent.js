@@ -1,21 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    Image,
-    TouchableOpacity,
-    Modal,
-} from 'react-native';
-import {
-    DrawerContentScrollView,
-    DrawerItemList,
-} from '@react-navigation/drawer';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getStored, getUserDetails } from '../Apicall/Axios';
+import { getUserDetails } from '../Apicall/Axios';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ChangePassword from './Drawerscreens/ChangePassword';
 
@@ -75,15 +65,15 @@ const CustomDrawerContent = (props) => {
             <Text style={styles.drawerItemLabel}>{label}</Text>
         </TouchableOpacity>
     );
-    // Filter drawer items based on role without modifying state.routes
+
     // Filter drawer items based on role without modifying state.routes
     const renderDrawerItems = () => {
         // Only include "Summary Report" if role is "Master"
         const filteredRoutes = props.state.routes.filter((route) =>
             route.name === 'Summary Report' ? role === 'Master' : true
         );
-        console.log("filterroute",filteredRoutes);
-        
+        console.log("filterroute", filteredRoutes);
+
         return (
             <DrawerItemList
                 {...props}
@@ -91,6 +81,7 @@ const CustomDrawerContent = (props) => {
             />
         );
     };
+
     return (
         <SafeAreaView style={styles.container}>
             {/* App Logo */}
@@ -132,8 +123,8 @@ const CustomDrawerContent = (props) => {
                     <Text style={[styles.actionText]}>Log out</Text>
                 </TouchableOpacity>
             </View>
+
             <DrawerContentScrollView {...props} style={styles.menuScroll} contentContainerStyle={{ paddingTop: 10 }}>
-                {/* Menu Items */}
                 {/* Add custom Change Password item */}
                 <CustomDrawerItem
                     label="Change Password"
@@ -161,7 +152,6 @@ const CustomDrawerContent = (props) => {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     logoContainer: {
-        // backgroundColor: '#03415A',
         padding: 20,
         alignItems: 'center',
         justifyContent: 'center',
@@ -182,7 +172,6 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        // marginBottom: 8,
     },
     username: {
         fontWeight: 'bold',
@@ -196,7 +185,6 @@ const styles = StyleSheet.create({
     actionRow: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        // paddingVertical: 20,
     },
     actionBtn: {
         alignItems: 'center',

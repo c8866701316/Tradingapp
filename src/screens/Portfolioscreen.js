@@ -9,7 +9,7 @@ import { useSound } from '../contexts/SoundContext';
 const Portfolioscreen = () => {
 
   const meData = React.useContext(UserContext);
-    const { playNotificationSound, isSoundEnabled } = useSound();
+  const { playNotificationSound, isSoundEnabled } = useSound();
   const [positions, setPositions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showCloseModal, setShowCloseModal] = useState(false);
@@ -59,12 +59,8 @@ const Portfolioscreen = () => {
 
         const data = await response.json();
         console.log("session pop-up data", data);
-
         console.log("Get Position Response:", JSON.stringify(data, null, 2));
-
-        // setPositionData(data.data || []);
         setPositions(data.data || []);
-
       } catch (error) {
         console.error("Error fetching position:", error);
       }
@@ -76,17 +72,16 @@ const Portfolioscreen = () => {
     fetchPosition();
   }, []);
 
-
   const handleClosePosition = (item) => {
     const isSellPosition = item.netQty < 0 || item.netLot < 0;
-    const reversedNetQty = Math.abs(item.netQty); // Convert to positive
-    const reversedNetLot = Math.abs(item.netLot); // Convert to positive
-    const side = isSellPosition ? 1 : -1; // If sell position, close with buy (1); if buy, close with sell (-1)
+    const reversedNetQty = Math.abs(item.netQty);
+    const reversedNetLot = Math.abs(item.netLot);
+    const side = isSellPosition ? 1 : -1;
 
     setSelectedPosition({
       ...item,
-      netQty: reversedNetQty, // Pass positive value
-      netLot: reversedNetLot, // Pass positive value
+      netQty: reversedNetQty,
+      netLot: reversedNetLot,
     });
     setTradeSide(side); // Set buy (1) or sell (-1)
     setClosePrice(item.ltp.toString()); // Set default close price to LTP
@@ -95,16 +90,12 @@ const Portfolioscreen = () => {
 
   const confirmClosePosition = async () => {
     if (!selectedPosition) return;
-
     try {
       setLoading(true);
       const userDetails = await getUserDetails();
       if (!userDetails?.accessToken) {
         throw new Error('Access token is missing.');
       }
-
-      // Determine if this is a short position (negative netQty)
-      const isShortPosition = selectedPosition.netQty < 0;
 
       // Prepare the order data
       const orderData = {
@@ -118,10 +109,8 @@ const Portfolioscreen = () => {
         symbol: selectedPosition.symbol,
         clientName: selectedPosition.clientName,
         clientId: selectedPosition.clientId,
-        isFrom: 1 // Assuming this is a constant value
+        isFrom: 1
       };
-
-      console.log('Closing position with:', orderData);
 
       // Make the API call
       const response = await fetch('https://tradep.clustersofttech.com/api/OrderApi/ClosePosition', {
@@ -134,11 +123,9 @@ const Portfolioscreen = () => {
       });
 
       const result = await response.json();
-
       if (response.ok) {
         showNotification(result.message);
         console.log('Position closed successfully:', result);
-        // Refresh positions after successful close
         const fetchPosition = async () => {
           try {
             const response = await fetch('https://tradep.clustersofttech.com/api/OrderApi/GetPosition', {
@@ -185,14 +172,11 @@ const Portfolioscreen = () => {
       setShowCloseModal(false);
     }
   };
+
   // subscribe / unsubscribe method
   const handleNewData = (newData) => {
-    // console.log("Received new data:", newData);
-    // console.log(Array.isArray(newData), "new data in array ");
-
     setPositionData((prevData) => {
       const updatedData = [...prevData];
-      // console.log("Updated Data:", updatedData);
       const newPriceChanges = { ...priceChanges };
       const newHighLowPriceChanges = { ...highLowPriceChanges };
       const existingIndex = updatedData.findIndex(
@@ -210,7 +194,6 @@ const Portfolioscreen = () => {
         const newLowPrice = parseFloat(newData?.lp) || 0;
         const prevHighPrice = parseFloat(prevItem?.hp) || 0;
         const newHighPrice = parseFloat(newData?.hp) || 0;
-
 
         // 🔹 Set Bid Price Color (Green if Increased, Red if Decreased)
         newPriceChanges[newData.s] = {
@@ -235,7 +218,6 @@ const Portfolioscreen = () => {
           ...newHighLowPriceChanges[newData.s],
           lowPriceColor: newLowPrice < prevLowPrice ? "red" : "green",
         };
-
         updatedData[existingIndex] = newData;
       } else {
         updatedData.push(newData);
@@ -286,7 +268,6 @@ const Portfolioscreen = () => {
     };
     const handleUnsubscribeFinished = (msg) => {
       console.log("positions OnUnsubscribeFinished", msg);
-      // setPositionData([]);
     };
 
     ConnectSignalR.on("OnSubscribeFinished", handleSubscribeFinished);
@@ -300,7 +281,6 @@ const Portfolioscreen = () => {
   }, []);
 
   useEffect(() => {
-    // Use meData to set up the watchlist
     const watchlistData = meData?.watchList || {};
     console.log("watchlistData position", watchlistData);
 
@@ -312,9 +292,6 @@ const Portfolioscreen = () => {
       };
     });
     console.log("normalizedWatchlist position", normalizedWatchlist);
-
-    // setPositions(normalizedWatchlist);
-
     if (normalizedWatchlist.length > 0) {
       const mcxData = normalizedWatchlist.find(item => item.category === 'MCX');
       const nseData = normalizedWatchlist.find(item => item.category === 'NSE');
@@ -322,34 +299,24 @@ const Portfolioscreen = () => {
         ...(mcxData?.items || []),
         ...(nseData?.items || [])
       ];
-
       setPositions(combinedScripts);
     }
-
   }, [meData]);
-
 
   const matchedItems = positionData.filter((posData) => {
     return positions.some((pos) => pos.symbol === posData.s);
   });
 
-  matchedItems.forEach((item, index) => {
-    // console.log(`${index}:`, item);
-  });
+  matchedItems.forEach((item, index) => { });
 
   const mergedPositions = positions.map((item) => {
     const matched = matchedItems.find((m) => m.s === item.symbol);
-    // console.log("mached",matched);
-
-    // console.log("ltp",matched?.ltp);
     const latPriceSet =
       matched?.ltp == 0
         ? matched?.op == 0
           ? matched?.pcp
           : matched?.op + matched?.ch
         : matched?.ltp;
-
-    // console.log("latPriceSet",latPriceSet);
 
     const total = matched
       ? item?.tsq * item?.sap + item.netQty * latPriceSet - item?.tbq * item?.bap
@@ -363,9 +330,7 @@ const Portfolioscreen = () => {
   });
   const totalMtm = mergedPositions.reduce((acc, item) => acc + (item.mtm || 0), 0);
 
-
   // message show on top side
-
   const showNotification = (message, type) => {
     setNotification({
       message,
@@ -373,7 +338,7 @@ const Portfolioscreen = () => {
       visible: true,
     });
 
-     // Play notification sound if enabled
+    // Play notification sound if enabled
     if (isSoundEnabled) {
       playNotificationSound();
     }
@@ -401,7 +366,6 @@ const Portfolioscreen = () => {
 
   // Function to toggle checkbox selection
   const toggleCheckbox = (index) => {
-    // Create a copy of the merged positions array
     const updatedPositions = [...mergedPositions];
 
     // Toggle the checked property for the position at the given index
@@ -421,8 +385,6 @@ const Portfolioscreen = () => {
       );
     }
 
-    // Update the positions array with the new checked state
-    // We need to update the original positions array to maintain the checked state
     const positionToUpdate = positions.findIndex(
       pos => pos.symbol === updatedPositions[index].symbol
     );
@@ -436,6 +398,7 @@ const Portfolioscreen = () => {
       setPositions(newPositions);
     }
   };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={{ backgroundColor: '#03415A', height: 70, flexDirection: 'row', justifyContent: 'space-between', }}>
@@ -719,7 +682,7 @@ const Portfolioscreen = () => {
                   {(item.netQty !== 0) && (
                     <TouchableOpacity
                       style={[styles.actionButton, { backgroundColor: '#FF5252', marginRight: 5 }]}
-                    onPress={() => handleClosePosition(item)}
+                      onPress={() => handleClosePosition(item)}
                     >
                       <Text style={styles.actionButtonText}>✖</Text>
                     </TouchableOpacity>
@@ -868,7 +831,6 @@ const Portfolioscreen = () => {
           <Text style={styles.notificationText}>{notification.message}</Text>
         </Animated.View>
       )}
-
     </SafeAreaView>
   );
 };
@@ -876,16 +838,12 @@ const Portfolioscreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: '#f4f4f4',
-    // padding: 16,
   },
   header: {
     fontSize: 22,
     fontWeight: 'bold',
     color: 'white',
     padding: 15,
-    // marginBottom: 10,
-    // backgroundColor:'#03415A',
   },
   balanceBox: {
     backgroundColor: '#ffffff',
@@ -903,7 +861,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#ff9900',
-
   },
   balanceAmountContainer: {
     alignItems: 'flex-end',
@@ -950,10 +907,10 @@ const styles = StyleSheet.create({
   },
   topRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // This pushes items to opposite ends
-    alignItems: 'center', // Vertically centers items
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 4,
-    width: '100%', // Ensure full width
+    width: '100%',
   },
   checkboxContainer: {
     marginRight: 8,
@@ -963,7 +920,6 @@ const styles = StyleSheet.create({
     height: 18,
     borderWidth: 2,
     borderColor: '#03415A',
-    // borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -979,90 +935,76 @@ const styles = StyleSheet.create({
     color: '#888',
     fontSize: 10,
     fontWeight: '600',
-    textAlign: 'left', // Align text to left
+    textAlign: 'left',
   },
-
   leftValue: {
     color: '#03415A',
     fontSize: 11,
     fontWeight: 'bold',
   },
-
   rightLabel: {
     color: '#888',
     fontSize: 10,
     fontWeight: '600',
-    textAlign: 'right', // Align text to right
+    textAlign: 'right',
   },
-
   rightValue: {
     color: '#03415A',
     fontSize: 11,
     fontWeight: 'bold',
     textAlign: 'right',
   },
-
   topLabel: {
     flex: 1,
     color: '#888',
     fontSize: 10,
     fontWeight: '600',
-    // textAlign: 'center',
   },
-
   topValue: {
-    // flex: 1,
     color: '#03415A',
     fontSize: 11,
     fontWeight: 'bold',
     textAlign: 'center',
   },
-
   middleRow: {
     marginBottom: 4,
-    // backgroundColor: 'pink',
     width: '100%',
   },
-
   rowContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4, // Add spacing between rows if needed
+    marginBottom: 4,
   },
-
   leftText: {
     fontSize: 10,
     color: '#888',
     fontWeight: '600',
     textAlign: 'left',
-    flex: 1, // Takes 1/3 of space but aligns left
+    flex: 1,
   },
-
   centerText: {
     fontSize: 10,
     color: '#888',
     fontWeight: '600',
     textAlign: 'center',
-    flex: 1, // Takes 1/3 of space and centers
+    flex: 1,
   },
-
   rightText: {
     fontSize: 10,
     color: '#888',
     fontWeight: '600',
     textAlign: 'right',
-    flex: 1, // Takes 1/3 of space but aligns right
+    flex: 1,
   },
-
   bold: {
     fontSize: 11,
     color: '#03415A',
   },
   bottomRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // This pushes items to opposite ends
-    alignItems: 'center', // Vertically centers items
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 4,
     width: '100%',
   },
@@ -1132,13 +1074,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: 'bold',
   },
-
   selectionContainer: {
     marginBottom: 10,
   },
   radioContainer: {
     flexDirection: 'row',
-    // justifyContent: 'space-between',
   },
   radioButton: {
     flexDirection: 'row',
@@ -1186,7 +1126,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     color: '#03415A',
   },
-
   priceInput: {
     borderWidth: 1,
     borderColor: '#ddd',
@@ -1230,9 +1169,7 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     fontWeight: 'bold',
-
   },
-
 });
 
 export default Portfolioscreen;

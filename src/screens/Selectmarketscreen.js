@@ -6,9 +6,9 @@ import { UserContext } from './UserContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '../Apicall/Axios';
 
-
 const BASE_URL = "https://tradep.clustersofttech.com/api";
-const Selectmarketscreen = ({ navigation, route }) => {
+
+const Selectmarketscreen = ({ navigation }) => {
 
     const meData = React.useContext(UserContext);
     console.log("meData from context:", meData);
@@ -16,6 +16,7 @@ const Selectmarketscreen = ({ navigation, route }) => {
 
     const segments = meData?.watchList || {};
     console.log("segmnet", segments);
+
     const segmentList = Object.keys(segments).map(key => {
         const [id, exchange] = key.split(':');
         return {
@@ -24,14 +25,6 @@ const Selectmarketscreen = ({ navigation, route }) => {
         };
     });
     console.log("segmentList", segmentList);
-
-    // useEffect(() => {
-    //     setLoading(false);
-    //     setTimeout(() => {
-    //         segments();
-    //     }, 1000)
-    //     // Once segments are processed, stop loading
-    // }, []);
 
     useEffect(() => {
         console.log("meData in useEffect:", meData);
@@ -42,8 +35,8 @@ const Selectmarketscreen = ({ navigation, route }) => {
     const handleMarketSelect = async (item) => {
         // Split the ID to get components
         const parts = item.id.split(':');
-        const option1 = parts[0]; // First part is always the ID
-        const displayName = item.text; // Use exchange name or fallback to item.text
+        const option1 = parts[0];
+        const displayName = item.text;
         console.log("Selected market:", displayName);
         const payload = {
             key: "BD564038-75E1-4967-B3C5-D28C659CB902",
@@ -58,7 +51,7 @@ const Selectmarketscreen = ({ navigation, route }) => {
             const json = response.data;
             if (json?.status && Array.isArray(json.data)) {
                 navigation.navigate("Marketscript", {
-                    title: displayName, // This will be shown in the MarketScript screen
+                    title: displayName,
                     scripts: json.data,
                     option1: option1,
                 });
@@ -67,7 +60,6 @@ const Selectmarketscreen = ({ navigation, route }) => {
             console.error("API Error:", error);
         }
     };
-
 
     return (
         <SafeAreaView style={styles.container}>
@@ -97,7 +89,6 @@ const Selectmarketscreen = ({ navigation, route }) => {
                         </Pressable>
                     ))}
                 </ScrollView>
-
             )}
         </SafeAreaView>
     );
@@ -106,8 +97,6 @@ const Selectmarketscreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // backgroundColor: '#f4f4f4',
-        // padding: 16,
     },
     header: {
         fontSize: 22,
@@ -115,16 +104,11 @@ const styles = StyleSheet.create({
         color: 'white',
         padding: 10,
         paddingHorizontal: 25,
-        // textAlign:'center'
-        // marginBottom: 10,
-        // backgroundColor:'#03415A',
     },
     loader: {
-
         flex: 1,
         justifyContent: 'center'
     },
-
     card: {
         backgroundColor: '#ffffff',
         flexDirection: 'row',
@@ -134,7 +118,6 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginVertical: 10,
         marginHorizontal: 10,
-        // elevation: 2,
     },
     date: {
         fontSize: 14,

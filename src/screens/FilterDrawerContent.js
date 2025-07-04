@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Modal,
-  TextInput,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Calendar } from 'react-native-calendars';
 import moment from 'moment';
-import { DrawerActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { UserContext } from './UserContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -23,9 +15,7 @@ const FilterDrawerContent = ({ onApplyFilters, initialFilters = {} }) => {
   const [selectedMarket, setSelectedMarket] = useState(initialFilters.market || '');
   const [fromDate, setFromDate] = useState(initialFilters.fromDate || '');
   const [toDate, setToDate] = useState(initialFilters.toDate || '');
-
   const [marketModalVisible, setMarketModalVisible] = useState(false);
-  // Initialize marketList with default values to prevent crashes
   const [marketList, setMarketList] = useState(['NSE', 'MCX']);
   const [searchMarket, setSearchMarket] = useState('');
   const [isReset, setIsReset] = useState(false);
@@ -80,15 +70,6 @@ const FilterDrawerContent = ({ onApplyFilters, initialFilters = {} }) => {
     }
   }, [meData]);
 
-
-  // Update local state when initialFilters change
-  // useEffect(() => {
-  //   setSelectedMarket('');
-  //   setFromDate('');
-  //   setToDate('');
-  //   navigation.dispatch(DrawerActions.closeDrawer());
-  // }, [initialFilters]);
-
   // date picker show
   const onDateSelect = (day) => {
     const formattedDate = moment(day.dateString).format('DD-MM-YYYY');
@@ -105,13 +86,6 @@ const FilterDrawerContent = ({ onApplyFilters, initialFilters = {} }) => {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Filter</Text>
-        {/* <TouchableOpacity onPress={() => {
-          console.log('Close button pressed'); navigation.dispatch(DrawerActions.closeDrawer()); setTimeout(() => {
-            navigation.dispatch(DrawerActions.closeDrawer());
-          }, 100);
-        }}>
-          <Ionicons name="close" size={24} color="#fff" />
-        </TouchableOpacity> */}
       </View>
 
       {/* Calendar Modal */}

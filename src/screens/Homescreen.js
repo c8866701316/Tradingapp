@@ -4,9 +4,8 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import AutoScroll from "@homielab/react-native-auto-scroll";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ConnectSignalR from "../Websocket/ConnectSignalR"; // Adjust the import path
-import { UserContext } from "./UserContext";
-import { api, getStored, getUserDetails } from "../Apicall/Axios"; // Adjust the import path
+import ConnectSignalR from "../Websocket/ConnectSignalR";
+import { api, getStored } from "../Apicall/Axios";
 import WatchlistSubscription from "./HomeComponts/WatchlistSubscription";
 import DataUpdateHandler from "./HomeComponts/DataUpdateHandler";
 import OrderModal from "./HomeComponts/OrderModal";
@@ -46,7 +45,7 @@ const HomeScreen = ({ navigation }) => {
           console.log(`Attempting SignalR connection (Attempt ${retryCount + 1}/${maxRetries})...`);
           await ConnectSignalR.start();
           console.log("SignalR connected successfully.");
-          return true; // Indicate successful connection
+          return true;
         }
         console.log("SignalR already connected.");
         return true;
@@ -56,7 +55,7 @@ const HomeScreen = ({ navigation }) => {
         if (retryCount === maxRetries) {
           console.error("Max SignalR connection retries reached.");
           Alert.alert("Connection Error", "Failed to connect to the server. Please try again later.");
-          return false; // Indicate failure
+          return false;
         }
         await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait before retrying
       }
@@ -76,7 +75,6 @@ const HomeScreen = ({ navigation }) => {
       if (!userDetails?.accessToken) {
         throw new Error("Access token is missing.");
       }
-      // const response = await api.get('/Me');
       const response = await api.get('/Me', {
         headers: { Authorization: `Bearer ${userDetails.accessToken}` },
       });
