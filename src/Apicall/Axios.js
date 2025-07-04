@@ -30,8 +30,8 @@ export const tokenExpired = (token) => {
   }
 };
 
+/*  */
 // ─────────── Refresh Token API ──────────────
-
 export const refreshAccessToken = async (refreshToken) => {
   const res = await api.post('/Auth/RefreshToken', {
     refreshToken,
@@ -139,6 +139,7 @@ export const saveToken = async (userData) => {
     const dataToSave = {
       accessToken: userData.accessToken,
       refreshToken: userData.refreshToken,
+      userDetails: userData.userDetails,
       userName: userData.userName || '',
       password: userData.password || '',
     };
@@ -168,6 +169,7 @@ export const saveToken = async (userData) => {
 
 
 // Retrieve user details
+
 export const getUserDetails = async () => {
   try {
     const userDetails = await AsyncStorage.getItem('UserDetails');

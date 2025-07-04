@@ -22,11 +22,9 @@ function TradeDeletelog({ filters }) {
         toDate = moment(filters.toDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
     }
 
-
     const fetchTradeLogs = async (filterParams = {}) => {
         setLoading(true);
         const currentDate = new Date().toISOString();
-
         const payload = {
             SMasterId: null,
             clientId: null,
@@ -69,7 +67,6 @@ function TradeDeletelog({ filters }) {
         }
     };
 
-
     // Apply filters when they change
     useEffect(() => {
         fetchTradeLogs();
@@ -104,7 +101,6 @@ function TradeDeletelog({ filters }) {
         <>
             <SafeAreaView style={styles.container}>
                 <View style={{ backgroundColor: '#03415A' }}>
-
                     {/* Trades Header */}
                     <View style={styles.header}>
                         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -156,10 +152,7 @@ function TradeDeletelog({ filters }) {
                         )}
                     </ScrollView>
                 )}
-
             </SafeAreaView>
-
-
         </>
     )
 }
@@ -198,7 +191,6 @@ const styles = StyleSheet.create({
         fontSize: 24,
         marginRight: 10,
     },
-
     headerText: {
         color: '#ffffff',
         fontSize: 20,
@@ -267,7 +259,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         textAlign: 'center',
     },
-
     date: {
         fontSize: 10,
         color: '#666',

@@ -11,17 +11,15 @@ const DataUpdateHandler = ({ selectedTabs, setData, selectedItem, setSelectedIte
         console.log("Invalid data or selectedTabs:", { newData, selectedTabs });
         return;
       }
-
       const watchlistPrefix = newData.s.split(":")[0];
       if (watchlistPrefix !== selectedTabs) {
-        console.log(`Ignoring update for ${newData.s}, current watchlist: ${selectedTabs}`);
         return;
       }
       console.log(`Processing update for ${newData.s}`);
       setData((prevData) => {
         const existingIndex = prevData.findIndex((item) => item.es === newData.es);
         if (existingIndex === -1) {
-          return [ 
+          return [
             ...prevData,
             {
               ...newData,
@@ -32,7 +30,7 @@ const DataUpdateHandler = ({ selectedTabs, setData, selectedItem, setSelectedIte
             },
           ];
         }
-        
+
         const prevItem = prevData[existingIndex];
         const newBidPrice = parseFloat(newData?.bp) || 0;
         const prevBidPrice = parseFloat(prevItem?.bp) || 0;

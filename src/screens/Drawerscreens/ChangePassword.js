@@ -1,21 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Modal,
-  ActivityIndicator,
-  Alert,
-  Animated,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, ActivityIndicator, Animated } from 'react-native';
 import { getUserDetails } from '../../Apicall/Axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useSound } from '../../contexts/SoundContext';
 
 const ChangePassword = ({ visible, onClose }) => {
-    const { playNotificationSound, isSoundEnabled } = useSound();
+  const { playNotificationSound, isSoundEnabled } = useSound();
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -36,7 +26,7 @@ const ChangePassword = ({ visible, onClose }) => {
       type,
       visible: true,
     });
- // Play notification sound if enabled
+    // Play notification sound if enabled
     if (isSoundEnabled) {
       playNotificationSound();
     }
@@ -83,8 +73,8 @@ const ChangePassword = ({ visible, onClose }) => {
     try {
       setLoading(true);
       const userDetails = await getUserDetails();
-     console.log("User ID:", userDetails?.userDetails?.id);
-      
+      console.log("User ID:", userDetails?.userDetails?.id);
+
       if (!userDetails?.accessToken) {
         throw new Error('Access token is missing.');
       }
@@ -95,7 +85,6 @@ const ChangePassword = ({ visible, onClose }) => {
       if (!clientId) {
         console.warn('ClientId not found in user details, proceeding without it');
       }
-
       console.log('Changing password with clientId:', clientId);
 
       const payload = {
@@ -104,7 +93,6 @@ const ChangePassword = ({ visible, onClose }) => {
         confirmPassword: confirmPassword,
         clientId: clientId
       };
-
       console.log('Change password payload:', JSON.stringify(payload));
 
       const response = await fetch('https://tradep.clustersofttech.com/api/Account/ChangePassword', {
@@ -115,25 +103,21 @@ const ChangePassword = ({ visible, onClose }) => {
         },
         body: JSON.stringify(payload),
       });
-
       const result = await response.json();
       console.log('Change password response:', result);
 
       if (response.ok) {
         // Display the actual response message from the API
         showNotification(result.message || 'Password changed successfully', 'success');
-
         // Reset form
         setOldPassword('');
         setNewPassword('');
         setConfirmPassword('');
-
         // Close modal after a delay
         setTimeout(() => {
           onClose();
         }, 2000);
       } else {
-        // Display the error message from the API
         throw new Error(result.message || 'Failed to change password');
       }
     } catch (error) {
@@ -144,126 +128,126 @@ const ChangePassword = ({ visible, onClose }) => {
     }
   };
 
-return (
-  <Modal
-    animationType="slide"
-    transparent={true}
-    visible={visible}
-    onRequestClose={onClose}
-  >
-    <View style={styles.modalOverlay}>
-      <View style={styles.modalContainer}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Change Password</Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Ionicons name="close" size={24} color="#03415A" />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Old Password</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.input}
-              value={oldPassword}
-              onChangeText={setOldPassword}
-              secureTextEntry={!showOldPassword}
-              placeholder="Enter old password"
-            />
-            <TouchableOpacity
-              style={styles.eyeIcon}
-              onPress={() => setShowOldPassword(!showOldPassword)}
-            >
-              <Ionicons
-                name={showOldPassword ? 'eye' : 'eye-off'}
-                size={24}
-                color="#03415A"
-              />
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContainer}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Change Password</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Ionicons name="close" size={24} color="#03415A" />
             </TouchableOpacity>
           </View>
-        </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>New Password</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.input}
-              value={newPassword}
-              onChangeText={setNewPassword}
-              secureTextEntry={!showNewPassword}
-              placeholder="Enter new password"
-            />
-            <TouchableOpacity
-              style={styles.eyeIcon}
-              onPress={() => setShowNewPassword(!showNewPassword)}
-            >
-              <Ionicons
-                name={showNewPassword ? 'eye' : 'eye-off'}
-                size={24}
-                color="#03415A"
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Old Password</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.input}
+                value={oldPassword}
+                onChangeText={setOldPassword}
+                secureTextEntry={!showOldPassword}
+                placeholder="Enter old password"
               />
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPress={() => setShowOldPassword(!showOldPassword)}
+              >
+                <Ionicons
+                  name={showOldPassword ? 'eye' : 'eye-off'}
+                  size={24}
+                  color="#03415A"
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Confirm Password</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.input}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry={!showConfirmPassword}
-              placeholder="Confirm new password"
-            />
-            <TouchableOpacity
-              style={styles.eyeIcon}
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-            >
-              <Ionicons
-                name={showConfirmPassword ? 'eye' : 'eye-off'}
-                size={24}
-                color="#03415A"
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>New Password</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.input}
+                value={newPassword}
+                onChangeText={setNewPassword}
+                secureTextEntry={!showNewPassword}
+                placeholder="Enter new password"
               />
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPress={() => setShowNewPassword(!showNewPassword)}
+              >
+                <Ionicons
+                  name={showNewPassword ? 'eye' : 'eye-off'}
+                  size={24}
+                  color="#03415A"
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
 
-        <TouchableOpacity
-          style={styles.submitButton}
-          onPress={handleChangePassword}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <Text style={styles.submitButtonText}>Change Password</Text>
-          )}
-        </TouchableOpacity>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Confirm Password</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.input}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry={!showConfirmPassword}
+                placeholder="Confirm new password"
+              />
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                <Ionicons
+                  name={showConfirmPassword ? 'eye' : 'eye-off'}
+                  size={24}
+                  color="#03415A"
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
 
-        {notification.visible && (
-          <Animated.View
-            style={[
-              styles.notification,
-              {
-                backgroundColor: notification.type === 'success' ? '#4CAF50' : '#F44336',
-                opacity: fadeAnim,
-                transform: [{
-                  translateY: fadeAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [-20, 0],
-                  }),
-                }],
-              },
-            ]}
+          <TouchableOpacity
+            style={styles.submitButton}
+            onPress={handleChangePassword}
+            disabled={loading}
           >
-            <Text style={styles.notificationText}>{notification.message}</Text>
-          </Animated.View>
-        )}
+            {loading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.submitButtonText}>Change Password</Text>
+            )}
+          </TouchableOpacity>
+
+          {notification.visible && (
+            <Animated.View
+              style={[
+                styles.notification,
+                {
+                  backgroundColor: notification.type === 'success' ? '#4CAF50' : '#F44336',
+                  opacity: fadeAnim,
+                  transform: [{
+                    translateY: fadeAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-20, 0],
+                    }),
+                  }],
+                },
+              ]}
+            >
+              <Text style={styles.notificationText}>{notification.message}</Text>
+            </Animated.View>
+          )}
+        </View>
       </View>
-    </View>
-  </Modal>
-);
+    </Modal>
+  );
 };
 
 const styles = StyleSheet.create({

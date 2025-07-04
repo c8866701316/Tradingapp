@@ -6,20 +6,22 @@ const ChangePasswordScreen = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Change Password</Text>
-      <TouchableOpacity 
-        style={styles.button}
-        onPress={() => setShowPasswordModal(true)}
-      >
-        <Text style={styles.buttonText}>Open Change Password Modal</Text>
-      </TouchableOpacity>
+    <>
+      <View style={styles.container}>
+        <Text style={styles.title}>Change Password</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => setShowPasswordModal(true)}
+        >
+          <Text style={styles.buttonText}>Open Change Password Modal</Text>
+        </TouchableOpacity>
 
-      <ChangePassword 
-        visible={showPasswordModal} 
-        onClose={() => setShowPasswordModal(false)} 
-      />
-    </View>
+        <ChangePassword
+          visible={showPasswordModal}
+          onClose={() => setShowPasswordModal(false)}
+        />
+      </View>
+    </>
   );
 };
 

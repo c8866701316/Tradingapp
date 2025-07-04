@@ -52,43 +52,43 @@ function RulesRegulation({ navigation }) {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            {/* <View style={styles.container}> */}
-                {/* Header Section */}
-                <View style={styles.header}>
-                    <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Ionicons name="chevron-back" size={24} color="#fff" />
-                    </Pressable>
-                    <Text style={styles.headerText}>Rules And Regulation</Text>
+
+            {/* Header Section */}
+            <View style={styles.header}>
+                <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
+                    <Ionicons name="chevron-back" size={24} color="#fff" />
+                </Pressable>
+                <Text style={styles.headerText}>Rules And Regulation</Text>
+            </View>
+
+            {/* Rules Content */}
+            <ScrollView style={styles.content}>
+                <View>
+                    <Text style={styles.title}>RULES & REGULATION</Text>
                 </View>
-
-                {/* Rules Content */}
-                <ScrollView style={styles.content}>
-                    <View>
-                        <Text style={styles.title}>RULES & REGULATION</Text>
-                    </View>
-                    {rulesEnglish.map((rule, index) => (
-                        <View key={index}>
-                            <View style={styles.ruleItem}>
-                                <Text style={styles.ruleNumber}>{index + 1}.</Text>
-                                <Text style={styles.ruleText}>{rule}</Text>
-                            </View>
+                {rulesEnglish.map((rule, index) => (
+                    <View key={index}>
+                        <View style={styles.ruleItem}>
+                            <Text style={styles.ruleNumber}>{index + 1}.</Text>
+                            <Text style={styles.ruleText}>{rule}</Text>
                         </View>
-
-                    ))}
-                    <View>
-                        <Text style={styles.title}>नियम और विनयम</Text>
                     </View>
-                    {rulesHindi.map((rule, index) => (
-                        <View key={index}>
-                            <View style={styles.ruleItem}>
-                                <Text style={styles.ruleNumber}>{index + 1}.</Text>
-                                <Text style={styles.ruleText}>{rule}</Text>
-                            </View>
-                        </View>
 
-                    ))}
-                </ScrollView>
-            {/* </View> */}
+                ))}
+                <View>
+                    <Text style={styles.title}>नियम और विनयम</Text>
+                </View>
+                {rulesHindi.map((rule, index) => (
+                    <View key={index}>
+                        <View style={styles.ruleItem}>
+                            <Text style={styles.ruleNumber}>{index + 1}.</Text>
+                            <Text style={styles.ruleText}>{rule}</Text>
+                        </View>
+                    </View>
+
+                ))}
+            </ScrollView>
+
         </SafeAreaView>
     );
 }

@@ -7,9 +7,7 @@ function Qtysettingscreen({ navigation }) {
     return (
         <>
             <SafeAreaView style={{ flex: 1 }}>
-                {/* <View style={styles.container}> */}
                 <View>
-
                     {/* Trades Header */}
                     <View style={styles.header}>
                         <Pressable onPress={() => navigation.goBack()} style={{ left: 15, alignSelf: "center" }}>
@@ -18,7 +16,6 @@ function Qtysettingscreen({ navigation }) {
                         <Text style={styles.headerText}>Qty Settings</Text>
                     </View>
 
-
                     <View style={styles.emptyContainer}>
                         <Text style={styles.emptyText}>NOTHING TO SHOW</Text>
                         <TouchableOpacity>
@@ -26,8 +23,6 @@ function Qtysettingscreen({ navigation }) {
                         </TouchableOpacity>
                     </View>
                 </View>
-                {/* </View> */}
-
             </SafeAreaView>
         </>
     )
@@ -72,7 +67,7 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         fontSize: 18,
     },
-     emptyContainer: {
+    emptyContainer: {
         // flex: 1,
         justifyContent: 'center',
         alignItems: 'center',

@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import Homescreen from './src/screens/Homescreen';
-import { AppState, DeviceEventEmitter, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { DeviceEventEmitter, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -12,8 +12,7 @@ import Sessionscreen from './src/screens/Sessionscreen';
 import Tradesscreen from './src/screens/Tradesscreen';
 import Accountsscreen from './src/screens/Accountsscreen';
 import RejectionLogs from './src/screens/RejectionLogs';
-import { clearAuthToken, clearStored, getStored, getUserDetails, Me, refreshAccessToken, saveStored, setAuthToken, tokenExpired } from './src/Apicall/Axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {clearStored, getStored, getUserDetails, Me, refreshAccessToken, saveStored, tokenExpired } from './src/Apicall/Axios';
 import AppInitializer from './src/Websocket/AppInitializer';
 import LoginScreen from './src/screens/Loginscreen';
 import Portfolioscreen from './src/screens/Portfolioscreen';
@@ -30,7 +29,6 @@ import RulesRegulation from './src/screens/Drawerscreens/RulesRegulation';
 import FilterDrawerContent from './src/screens/FilterDrawerContent';
 import SummaryReport from './src/screens/Drawerscreens/SummaryReport';
 import PdfReportscreen from './src/screens/Drawerscreens/PdfReportscreen';
-import ChangePassword from './src/screens/Drawerscreens/ChangePassword';
 import Alertsettingsscreen from './src/screens/Drawerscreens/Alertsettingsscreen';
 import ScriptListScreen from './src/screens/ScriptListScreen';
 
@@ -39,7 +37,6 @@ import ScriptListScreen from './src/screens/ScriptListScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
-
 const RightDrawer = createDrawerNavigator();
 
 function TradeWithFilterDrawer() {
@@ -319,14 +316,19 @@ function TabNavigator({ route }) {
 
 // Main App Navigator (combines Stack and Drawer)
 function MainNavigator({ meData }) {
-  const [role, setRole] = useState('');
-  const user = async () => {
-    const userDetails = await getUserDetails();
-    setRole(userDetails.userDetails.role)
-  }
+  const [role, setRole] = useState<string | undefined>();
+
+  const fetchRole = async () => {
+    const stored = await getUserDetails();
+    setRole(stored?.userDetails?.role);   // "Master", "Client", etc.
+  };
+
   useEffect(() => {
-    user();
-  }, [])
+    fetchRole();                          // run once at mount
+    // re‑fetch after a successful login so the drawer updates immediately
+    const sub = DeviceEventEmitter.addListener('onLoginSuccess', fetchRole);
+    return () => sub.remove();
+  }, []);
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent {...props} />}
@@ -490,7 +492,6 @@ function App() {
 
 export default App;
 
-// Styles
 const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: '#03415A',

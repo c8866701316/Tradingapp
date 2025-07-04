@@ -10,24 +10,24 @@ const ChangePasswordWrapper = ({ route, navigation }) => {
     const unsubscribe = navigation.addListener('focus', () => {
       setShowPasswordModal(true);
     });
-
     // Cleanup the listener when the component is unmounted
     return unsubscribe;
   }, [navigation]);
 
   const handleCloseModal = () => {
     setShowPasswordModal(false);
-    // Navigate back to the previous screen
     navigation.goBack();
   };
 
   return (
-    <View style={styles.container}>
-      <ChangePassword 
-        visible={showPasswordModal} 
-        onClose={handleCloseModal} 
-      />
-    </View>
+    <>
+      <View style={styles.container}>
+        <ChangePassword
+          visible={showPasswordModal}
+          onClose={handleCloseModal}
+        />
+      </View>
+    </>
   );
 };
 

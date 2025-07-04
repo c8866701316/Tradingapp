@@ -6,7 +6,7 @@ import { getUserDetails } from '../../Apicall/Axios';
 import { UserContext } from '../UserContext';
 import ConnectSignalR from '../../Websocket/ConnectSignalR';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 function SummaryReport() {
   const meData = React.useContext(UserContext);
@@ -14,7 +14,6 @@ function SummaryReport() {
   const [loading, setLoading] = useState(true);
   const [reportData, setReportData] = useState([]);
   const [subscribedReportData, setSubscribereportData] = useState([]);
-  const [error, setError] = useState(null);
   const [clientTotals, setClientTotals] = useState([]);
   const [priceChanges, setPriceChanges] = useState({});
   const [highLowPriceChanges, setHighLowPriceChanges] = useState({});
@@ -74,7 +73,6 @@ function SummaryReport() {
       console.log("totals", totals);
       setClientTotals(totals);
     } catch (err) {
-      setError(err.message);
       console.error('Error fetching summary report:', err);
     } finally {
       setLoading(false);
@@ -142,7 +140,6 @@ function SummaryReport() {
         groupedData[clientId].totalPrice -= item.totalNetPrice || 0;
       }
     });
-
     return Object.values(groupedData);
   };
 
@@ -159,14 +156,11 @@ function SummaryReport() {
       setClientTotals(totals);
     }
   }, [subscribedReportData, reportData]);
+
   // subscribe / unsubscribe method 
   const handleNewData = (newData) => {
-    // console.log("Received new data:", newData);
-    // console.log(Array.isArray(newData), "new data in array ");
-
     setSubscribereportData((prevData) => {
       const updatedData = Array.isArray(prevData) ? [...prevData] : [];
-      // console.log("Updated Data:", updatedData);
       const newPriceChanges = { ...priceChanges };
       const newHighLowPriceChanges = { ...highLowPriceChanges };
       const existingIndex = updatedData.findIndex(
@@ -288,14 +282,9 @@ function SummaryReport() {
     });
     console.log("normalizedWatchlist reportData", normalizedWatchlist);
 
-
     if (normalizedWatchlist.length > 0) {
       const mcxData = normalizedWatchlist.find(item => item.category === 'MCX');
       const nseData = normalizedWatchlist.find(item => item.category === 'NSE');
-      // const combinedScripts = [
-      //   ...(mcxData?.items || []),
-      //   ...(nseData?.items || [])
-      // ];
       const combinedScripts = normalizedWatchlist.flatMap(item => item.items);
       setWatchlistSymbols(combinedScripts);
     }
@@ -306,6 +295,7 @@ function SummaryReport() {
   return (
     <>
       <SafeAreaView style={styles.container}>
+
         <View style={{ backgroundColor: '#03415A' }}>
           {/* Trades Header */}
           <View style={styles.header}>
@@ -315,6 +305,7 @@ function SummaryReport() {
             <Text style={styles.headerText}>Summary Report</Text>
           </View>
         </View>
+
         {loading ? (
           <ActivityIndicator size="large" color="#03415A" style={{ marginTop: 20 }} />
         ) : (
@@ -322,6 +313,7 @@ function SummaryReport() {
             {clientTotals?.length > 0 ? (
               clientTotals.map((client) => (
                 <View key={client.clientId} style={styles.reportContainer}>
+
                   {/* Row 1 */}
                   <View style={styles.row1}>
                     <View>

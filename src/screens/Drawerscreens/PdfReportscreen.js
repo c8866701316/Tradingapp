@@ -7,7 +7,6 @@ import { TouchableOpacity } from 'react-native';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import RNFetchBlob from 'rn-fetch-blob';
 import { PermissionsAndroid, Platform } from 'react-native';
-import RNFS from 'react-native-fs';
 import RNPrint from 'react-native-print';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -15,7 +14,6 @@ function PdfReportscreen() {
     const navigation = useNavigation();
     const route = useRoute();
     const { clientId } = route.params;
-
     const [loading, setLoading] = useState(false);
     const [positionData, setPositionData] = useState(null);
     const [error, setError] = useState(null);
@@ -58,7 +56,6 @@ function PdfReportscreen() {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-
             const data = await response.json();
             console.log('Position Data:', data);
             setPositionData(data);
@@ -86,11 +83,9 @@ function PdfReportscreen() {
                         granted[PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE] === PermissionsAndroid.RESULTS.GRANTED
                     );
                 }
-
                 // On Android 11+ (API 30), assume permission is granted for app-scoped storage
                 return true;
             }
-
             return true; // iOS
         } catch (err) {
             console.warn(err);
@@ -206,7 +201,6 @@ function PdfReportscreen() {
             };
 
             const pdf = await RNHTMLtoPDF.convert(options);
-
             const dirs = RNFetchBlob.fs.dirs;
             const path = `${dirs.DownloadDir}/${fileName}.pdf`;
 
@@ -260,108 +254,102 @@ function PdfReportscreen() {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            {/* <View style={styles.container}> */}
-                <View style={{ backgroundColor: '#03415A' }}>
-                    <View style={styles.header}>
-                        <Pressable onPress={() => navigation.goBack()} style={{ padding: 5 }}>
-                            <Ionicons name="chevron-back" size={24} color="#fff" />
-                        </Pressable>
-                        <Text style={styles.headerTitle}>Summary Report</Text>
-                    </View>
-                </View>
-
-                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 10 }}>
-                    <Pressable style={{ marginRight: 10, backgroundColor: '#6c5dd3', padding: 10, borderRadius: 10 }} onPress={handlewSavepdf}>
-                        <Text style={{ color: '#fff' }}>Export</Text>
+            <View style={{ backgroundColor: '#03415A' }}>
+                <View style={styles.header}>
+                    <Pressable onPress={() => navigation.goBack()} style={{ padding: 5 }}>
+                        <Ionicons name="chevron-back" size={24} color="#fff" />
                     </Pressable>
-                    <Pressable style={{ marginRight: 10, backgroundColor: '#6c5dd3', padding: 10, borderRadius: 10 }} onPress={handlePrint}>
-                        <Text style={{ color: '#fff' }}>Print</Text>
-                    </Pressable>
+                    <Text style={styles.headerTitle}>Summary Report</Text>
                 </View>
+            </View>
 
-                <View style={styles.netposition}>
-                    <Text style={{ textAlign: 'center', fontSize: 13, fontWeight: 'bold', color: 'black' }}>Net Position</Text>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5 }}>
-                        <Text style={{ textAlign: 'center', fontSize: 13, color: 'black' }}>
-                            {positionData && positionData.data && positionData.data.length > 0
-                                ? positionData.data[0].clientName
-                                : "Loading client..."}</Text>
-                        <Text style={{ textAlign: 'center', fontSize: 13, color: 'black' }}>{new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}</Text>
-                    </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 10 }}>
+                <Pressable style={{ marginRight: 10, backgroundColor: '#6c5dd3', padding: 10, borderRadius: 10 }} onPress={handlewSavepdf}>
+                    <Text style={{ color: '#fff' }}>Export</Text>
+                </Pressable>
+                <Pressable style={{ marginRight: 10, backgroundColor: '#6c5dd3', padding: 10, borderRadius: 10 }} onPress={handlePrint}>
+                    <Text style={{ color: '#fff' }}>Print</Text>
+                </Pressable>
+            </View>
+
+            <View style={styles.netposition}>
+                <Text style={{ textAlign: 'center', fontSize: 13, fontWeight: 'bold', color: 'black' }}>Net Position</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5 }}>
+                    <Text style={{ textAlign: 'center', fontSize: 13, color: 'black' }}>
+                        {positionData && positionData.data && positionData.data.length > 0
+                            ? positionData.data[0].clientName
+                            : "Loading client..."}</Text>
+                    <Text style={{ textAlign: 'center', fontSize: 13, color: 'black' }}>{new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}</Text>
                 </View>
+            </View>
 
 
-                <View style={styles.content}>
-                    {loading ? (
-                        <ActivityIndicator size="large" color="#03415A" style={{ marginTop: 20 }} />
-                    ) : error ? (
-                        <Text style={styles.errorText}>Error: {error}</Text>
-                    ) : (
-                        <ScrollView style={{ marginTop: 10 }}>
-                            {positionData && positionData.data && positionData.data.length > 0 ? (
-                                positionData.data.map((item, index) => (
-                                    <View key={index} style={styles.card}>
-                                        {/* {Object.entries(item).map(([key, valut
+            <View style={styles.content}>
+                {loading ? (
+                    <ActivityIndicator size="large" color="#03415A" style={{ marginTop: 20 }} />
+                ) : error ? (
+                    <Text style={styles.errorText}>Error: {error}</Text>
+                ) : (
+                    <ScrollView style={{ marginTop: 10 }}>
+                        {positionData && positionData.data && positionData.data.length > 0 ? (
+                            positionData.data.map((item, index) => (
+                                <View key={index} style={styles.card}>
                                     {/* Top Row */}
-                                        <View style={styles.topRow}>
-                                            <Text style={styles.leftLabel}>SEGMENT: <Text style={styles.leftValue}>{item.segmentName}</Text></Text>
-                                            <Text style={styles.rightLabel}>CLIENT: <Text style={styles.rightValue}>{item.clientName}</Text></Text>
-                                        </View>
-                                        {/* <View style={styles.topRow}> */}
-
-                                        <Text style={styles.topLabel}>SYMBOL :<Text style={styles.topValue}>{item.symbolName}</Text></Text>
-                                        {/* </View> */}
-
-
-                                        {/* Middle Rows */}
-                                        <View style={styles.middleRow}>
-                                            {/* First Row */}
-                                            <View style={styles.rowContainer}>
-                                                <Text style={styles.leftText}>TBQ: <Text style={styles.bold}>{item.tbq}({item.tbLot})</Text></Text>
-                                                <Text style={styles.centerText}>BAP: <Text style={styles.bold}>{item.bap}</Text></Text>
-                                                <Text style={styles.rightText}>TSQ: <Text style={styles.bold}>{item.tsq}({item.tsLot})</Text></Text>
-                                            </View>
-
-                                            {/* Second Row */}
-                                            <View style={styles.rowContainer}>
-                                                <Text style={styles.leftText}>SAP: <Text style={styles.bold}>{item.sap}</Text></Text>
-                                                <Text style={styles.centerText}>NET QTY: <Text style={styles.bold}>{item.netQty} ({item.netLot})</Text></Text>
-                                                <Text style={styles.rightText}>LTP: <Text style={[styles.bold]}>{item.ltp}</Text></Text>
-                                            </View>
-                                        </View>
-
-                                        {/* ))} */}
+                                    <View style={styles.topRow}>
+                                        <Text style={styles.leftLabel}>SEGMENT: <Text style={styles.leftValue}>{item.segmentName}</Text></Text>
+                                        <Text style={styles.rightLabel}>CLIENT: <Text style={styles.rightValue}>{item.clientName}</Text></Text>
                                     </View>
-                                ))
-                            ) : (
-                                <View style={styles.emptyContainer}>
-                                    <Text style={styles.emptyText}>NOTHING TO SHOW</Text>
-                                    <TouchableOpacity>
-                                        <Text style={styles.refreshText}>↻</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            )}
-                        </ScrollView>
-                    )}
-                </View>
-                <Animated.View
-                    style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        backgroundColor: '#4CAF50',
-                        padding: 15,
-                        transform: [{ translateY: toastAnim }],
-                        zIndex: 999,
-                    }}
-                >
-                    <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
-                        {toastMessage}
-                    </Text>
-                </Animated.View>
+                                    <Text style={styles.topLabel}>SYMBOL :<Text style={styles.topValue}>{item.symbolName}</Text></Text>
 
-            {/* </View> */}
+                                    {/* Middle Rows */}
+                                    <View style={styles.middleRow}>
+                                        {/* First Row */}
+                                        <View style={styles.rowContainer}>
+                                            <Text style={styles.leftText}>TBQ: <Text style={styles.bold}>{item.tbq}({item.tbLot})</Text></Text>
+                                            <Text style={styles.centerText}>BAP: <Text style={styles.bold}>{item.bap}</Text></Text>
+                                            <Text style={styles.rightText}>TSQ: <Text style={styles.bold}>{item.tsq}({item.tsLot})</Text></Text>
+                                        </View>
+
+                                        {/* Second Row */}
+                                        <View style={styles.rowContainer}>
+                                            <Text style={styles.leftText}>SAP: <Text style={styles.bold}>{item.sap}</Text></Text>
+                                            <Text style={styles.centerText}>NET QTY: <Text style={styles.bold}>{item.netQty} ({item.netLot})</Text></Text>
+                                            <Text style={styles.rightText}>LTP: <Text style={[styles.bold]}>{item.ltp}</Text></Text>
+                                        </View>
+                                    </View>
+
+                                </View>
+                            ))
+                        ) : (
+                            <View style={styles.emptyContainer}>
+                                <Text style={styles.emptyText}>NOTHING TO SHOW</Text>
+                                <TouchableOpacity>
+                                    <Text style={styles.refreshText}>↻</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    </ScrollView>
+                )}
+            </View>
+
+            <Animated.View
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    backgroundColor: '#4CAF50',
+                    padding: 15,
+                    transform: [{ translateY: toastAnim }],
+                    zIndex: 999,
+                }}
+            >
+                <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
+                    {toastMessage}
+                </Text>
+            </Animated.View>
+
+
         </SafeAreaView>
     );
 }

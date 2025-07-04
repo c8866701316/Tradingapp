@@ -7,7 +7,6 @@ import { useSound } from '../../contexts/SoundContext';
 function Alertsettingsscreen({ navigation }) {
     // Use the sound context instead of local state
     const { isSoundEnabled, toggleSound } = useSound();
-
     console.log("hello");
 
     return (
@@ -22,6 +21,7 @@ function Alertsettingsscreen({ navigation }) {
                         </Pressable>
                         <Text style={styles.headerText}>Alert Settings</Text>
                     </View>
+
                     <View style={{ top: 10 }}>
                         <View style={styles.soundbox}>
                             <Text style={styles.soundtxt}>Alert Sound</Text>
@@ -34,6 +34,7 @@ function Alertsettingsscreen({ navigation }) {
                             />
                         </View>
                     </View>
+
                 </View>
             </SafeAreaView>
 

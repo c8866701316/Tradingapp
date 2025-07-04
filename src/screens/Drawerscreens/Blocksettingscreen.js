@@ -25,9 +25,9 @@ function Blocksettingscreen({ navigation }) {
                             <Text style={styles.refreshText}>↻</Text>
                         </TouchableOpacity>
                     </View>
+                    
                 </View>
                 {/* </View> */}
-
             </SafeAreaView>
         </>
     )

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, Pressable, TextInput, Animated, Alert, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Pressable, Alert, ScrollView } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import AutoScroll from "@homielab/react-native-auto-scroll";
@@ -62,6 +62,7 @@ const HomeScreen = ({ navigation }) => {
       }
     }
   }, []);
+
   // Me Api call and Show Watchlist Name
   const fetchWatchlist = useCallback(async () => {
     if (hasFetchedWatchlist.current) {

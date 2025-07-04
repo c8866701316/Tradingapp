@@ -72,7 +72,7 @@ const Selectmarketscreen = ({ navigation, route }) => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={{ backgroundColor: '#03415A', height: 50, flexDirection: "row" }}>
-                <Pressable onPress={() => navigation.goBack()} style={{ left: 15, alignSelf: "center",padding:8 }}>
+                <Pressable onPress={() => navigation.goBack()} style={{ left: 15, alignSelf: "center", padding: 8 }}>
                     <Ionicons name="chevron-back" size={24} color="#fff" />
                 </Pressable>
                 <Text style={styles.header}>Select Market</Text>
